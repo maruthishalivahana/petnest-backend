@@ -11,10 +11,10 @@ app.get("/user", (req: Request, res: Response) => {
 
 interface Userbody {
     email: string,
-    password: string
+    password: string,
     name: string,
 }
-app.post('/user', async (req: Request<Userbody>, res: Response) => {
+app.post('/user', async (req: Request<{}, {}, Userbody>, res: Response) => {
     const { email, password, name } = req.body
     if (typeof password === 'number') {
         return res.status(400).send("password must be String")
@@ -26,7 +26,7 @@ app.post('/user', async (req: Request<Userbody>, res: Response) => {
         name
     }
     console.log(newuser)
-    res.status(201).json({
+    return res.status(201).json({
         message: "user Created",
         newuser
     })
@@ -34,7 +34,7 @@ app.post('/user', async (req: Request<Userbody>, res: Response) => {
 
 })
 
-const server = (): void => {
+const server = () => {
     app.listen(port, () => {
         console.log(`server runing on port: ${port}`)
     })
