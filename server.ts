@@ -1,9 +1,11 @@
+const dotenv = require('dotenv')
 const express = require('express')
+const connectDB = require('./config/database')
 import type { Request, Response } from "express";
 const app = express()
 app.use(express.json());
-
-const port = 5000
+dotenv.config()
+connectDB()
 
 app.get("/user", (req: Request, res: Response) => {
     res.send("hello im the user")
@@ -34,9 +36,10 @@ app.post('/user', async (req: Request<{}, {}, Userbody>, res: Response) => {
 
 })
 
+const PORT = process.env.PORT || 8080
 const server = () => {
-    app.listen(port, () => {
-        console.log(`server runing on port: ${port}`)
+    app.listen(PORT, () => {
+        console.log(`server runing on port: ${PORT}`)
     })
 }
 server();
