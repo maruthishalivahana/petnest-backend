@@ -1,45 +1,24 @@
-const dotenv = require('dotenv')
-const express = require('express')
-const connectDB = require('./config/database')
-import type { Request, Response } from "express";
-const app = express()
+import dotenv from 'dotenv';
+import express from 'express';
+import connectDB from './config/database.js';
+
+dotenv.config();
+
+const app = express();
 app.use(express.json());
-dotenv.config()
-connectDB()
 
-app.get("/user", (req: Request, res: Response) => {
-    res.send("hello im the user")
-})
+const PORT = process.env.PORT || 8080;
 
-interface Userbody {
-    email: string,
-    password: string,
-    name: string,
-}
-app.post('/user', async (req: Request<{}, {}, Userbody>, res: Response) => {
-    const { email, password, name } = req.body
-    if (typeof password === 'number') {
-        return res.status(400).send("password must be String")
+const startServer = async () => {
+    try {
+        await connectDB()
+        app.listen(PORT, () => {
+            console.log(`Server running on port: ${PORT}`);
+        });
+    } catch (err: any) {
+        console.error("Failed to start server:", err.message || err);
+        process.exit(1);
     }
+};
 
-    const newuser = {
-        email,
-        password,
-        name
-    }
-    console.log(newuser)
-    return res.status(201).json({
-        message: "user Created",
-        newuser
-    })
-
-
-})
-
-const PORT = process.env.PORT || 8080
-const server = () => {
-    app.listen(PORT, () => {
-        console.log(`server runing on port: ${PORT}`)
-    })
-}
-server();
+startServer();
