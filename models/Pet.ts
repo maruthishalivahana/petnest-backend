@@ -120,13 +120,13 @@ const PetSchema: Schema<IPet> = new Schema(
         //     whatsappClicks: { type: Number, default: 0 }
         // }
     },
-    { timestamps: true } // adds createdAt and updatedAt
+    { timestamps: true }
 );
 
 PetSchema.pre('save', async function (next) {
     if (this.isModified('breedId')) {
         const breed = await Breed.findById(this.breedId);
-        if (breed) this.category = breed.species; // auto-fill category
+        if (breed) this.category = breed.species;
     }
     next();
 });
