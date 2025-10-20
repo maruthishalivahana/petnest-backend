@@ -90,5 +90,5 @@ const sellerSchema: Schema<ISeller> = new Schema({
 
 }, { timestamps: true })
 
-const seller: Model<ISeller> = mongoose.model<ISeller>('seller', sellerSchema)
+const seller: Model<ISeller> = mongoose.model<ISeller>('SellerProfile', sellerSchema)
 export default seller

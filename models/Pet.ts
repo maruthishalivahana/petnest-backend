@@ -1,6 +1,6 @@
 import { Document, Types, Schema, model, Model } from 'mongoose';
 
-
+import Breed from './Breed';
 export interface IPet extends Document {
     sellerId: Types.ObjectId;
     breedId: Types.ObjectId;
@@ -122,6 +122,14 @@ const PetSchema: Schema<IPet> = new Schema(
     },
     { timestamps: true } // adds createdAt and updatedAt
 );
+
+PetSchema.pre('save', async function (next) {
+    if (this.isModified('breedId')) {
+        const breed = await Breed.findById(this.breedId);
+        if (breed) this.category = breed.species; // auto-fill category
+    }
+    next();
+});
 
 const Pet: Model<IPet> = model<IPet>('Pet', PetSchema);
 
