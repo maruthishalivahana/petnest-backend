@@ -1,7 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "nodenext",
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ],
+    "target": "ES2022",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
@@ -11,6 +18,16 @@
     "declaration": true,
     "declarationMap": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true
-  }
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./dist",
+    "rootDir": "./"
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

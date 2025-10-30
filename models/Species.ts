@@ -1,15 +1,18 @@
-import { Document, Types, Schema, model, Model } from "mongoose";
-export interface ISpecies extends Document {
-    speciesName: string,
-    scientificName: string,
-    category: string,
-    protectionLevel?: string,
-    allowedForTrade: boolean,
-    referenceAct: string,
-    notes?: string,
-    createdAt: Date,
-    updatedAt: Date
+import { Document, Schema, model, Model } from "mongoose";
 
+interface ISpeciesAttrs {
+    speciesName: string;
+    scientificName: string;
+    category: string;
+    protectionLevel?: string;
+    allowedForTrade: boolean;
+    referenceAct?: string;
+    notes?: string;
+}
+
+export interface ISpecies extends Document, ISpeciesAttrs {
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 const speciesSchema: Schema<ISpecies> = new Schema({
@@ -41,7 +44,7 @@ const speciesSchema: Schema<ISpecies> = new Schema({
     }
 }, {
     timestamps: true
-})
+});
 
-const species: Model<ISpecies> = model<ISpecies>('SpeciesRegulation', speciesSchema)
-export default species
+const species: Model<ISpecies> = model<ISpecies>('SpeciesRegulation', speciesSchema);
+export default species;

@@ -1,6 +1,4 @@
 import { Document, Schema, model, Types, Model } from 'mongoose';
-
-
 export interface IReview extends Document {
     buyerId: Types.ObjectId;
     sellerId: Types.ObjectId;

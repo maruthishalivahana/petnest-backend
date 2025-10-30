@@ -1,6 +1,6 @@
 import { Document, Types, Schema, model, Model } from 'mongoose';
 
-import Breed from './Breed';
+import Breed from './Breed.js';
 export interface IPet extends Document {
     sellerId: Types.ObjectId;
     breedId: Types.ObjectId;
