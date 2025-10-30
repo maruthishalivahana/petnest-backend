@@ -58,4 +58,39 @@ export const signUp = async (req: Request, res: Response) => {
 }
 
 
+export const login = async (req: Request, res: Response) => {
+    const { email, password } = req.body as ILoginData;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                message: "user not found"
+            })
+        }
+        const ispasswordValid = await bcrypt.compare(password, user?.password);
+        if (!ispasswordValid) {
+            return res.status(401).json({
+                message: "invalid credentials"
+            })
+        }
+        const jwtToken = jwt.sign({
+            id: user._id,
+            role: user.role
+        }, JWT_SECRET, { expiresIn: '7d' })
+        const { password: _, ...userData } = user.toObject();
+        return res.status(200).json({
+            message: "user login sucessfully!",
+            user
+        })
+
+    } catch (error: any) {
+        return res.status(500).json({
+            message: "oops! something went wrong!",
+            error: error.message
+        })
+    }
+
+}
+
 
