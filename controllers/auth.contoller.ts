@@ -49,6 +49,12 @@ export const signUp = async (req: Request, res: Response) => {
             { expiresIn: "7d" }
         );
 
+        res.cookie('token', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+
+        })
         const { password: _, ...userData } = savedUser.toObject();
 
         return res.status(201).json({
@@ -90,6 +96,13 @@ export const login = async (req: Request, res: Response) => {
             id: user._id,
             role: user.role
         }, JWT_SECRET, { expiresIn: '7d' })
+
+        res.cookie('token', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+
+        })
         const { password: _, ...userData } = user.toObject();
         return res.status(200).json({
             message: "user login sucessfully!",

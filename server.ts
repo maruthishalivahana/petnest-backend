@@ -1,17 +1,17 @@
 import dotenv from 'dotenv';
 // Load environment variables first
 dotenv.config();
-
+import cookies from 'cookie-parser'
 import express from 'express';
 import connectDB from './config/database';
 import { authRouter } from './routes/user.routes';
-
+const app = express();
+app.use(cookies());
 // Validate required environment variables
 if (!process.env.JWT_SECRET) {
     console.error("WARNING: JWT_SECRET is not set in .env file. Using default (not recommended for production)");
 }
 
-const app = express();
 app.use(express.json());
 app.use('/v1/api/auth', authRouter);
 
