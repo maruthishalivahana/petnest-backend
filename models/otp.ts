@@ -32,3 +32,6 @@ const OtpSchema: Schema<IOTP> = new Schema({
         default: Date.now
     }
 });
+
+const OTPModel: Model<IOTP> = model<IOTP>('OTP', OtpSchema);
+export default OTPModel;

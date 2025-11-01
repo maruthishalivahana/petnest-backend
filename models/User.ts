@@ -9,11 +9,13 @@ export interface IUser extends Document {
     phoneNumber?: string;
     bio?: string;
     location?: string;
-    isVerified?: boolean;
+    otpCode: number;
+    otpExpiry: number
     preferences?: Record<string, any>;
     isBanned: boolean;
     createdAt: Date;
     updatedAt: Date;
+
 }
 
 const UserSchema: Schema<IUser> = new Schema(
@@ -26,9 +28,17 @@ const UserSchema: Schema<IUser> = new Schema(
         phoneNumber: { type: String },
         bio: { type: String },
         location: { type: String },
-        isVerified: { type: Boolean, default: false },
         preferences: { type: Schema.Types.Mixed },
         isBanned: { type: Boolean, default: false },
+        otpCode: {
+            type: Number,
+            required: true
+        },
+        otpExpiry: {
+            type: Number,
+        },
+        createdAt: { type: Date, default: Date.now },
+        updatedAt: { type: Date, default: Date.now }
     },
     { timestamps: true }
 );

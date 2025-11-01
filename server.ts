@@ -16,6 +16,9 @@ app.use(express.json());
 app.use('/v1/api/auth', authRouter);
 
 const PORT = process.env.PORT || 8080;
+console.log("✅ Email User:", process.env.SMTP_USER ? true : false);
+console.log("✅ Email Pass loaded:", !!process.env.SMTP_PASS);
+
 
 const startServer = async () => {
     try {

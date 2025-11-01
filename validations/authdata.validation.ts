@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { is } from 'zod/v4/locales';
 
 export const SignupSchema = z.object({
     name: z.string().min(1, "name is required"),
@@ -8,7 +9,8 @@ export const SignupSchema = z.object({
         .regex(/[a-z]/, "password must contain at least one lowercase letter")
         .regex(/[0-9]/, "password must contain at least one number")
         .regex(/[@$!%*?&]/, "password must contain at least one special character"),
-    role: z.enum(["buyer", "seller", "admin"], "role must be either buyer, seller or admin")
+    role: z.enum(["buyer", "seller", "admin"], "role must be either buyer, seller or admin"),
+    isVerified: z.boolean().optional().default(false)
 })
 
 
