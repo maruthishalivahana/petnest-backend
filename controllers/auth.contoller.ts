@@ -11,7 +11,7 @@ export const signUp = async (req: Request, res: Response) => {
     try {
         // Validate incoming data
         const safedata = SignupSchema.safeParse(req.body);
-
+        //validating error
         if (!safedata.success) {
             return res.status(400).json(zodErrorFormatter(safedata.error));
         }
