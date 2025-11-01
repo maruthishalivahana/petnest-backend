@@ -2,15 +2,12 @@ import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
+import { SignupSchema, LoginSchema } from "./validations/authdata.validation";
+import { SignupData, LoginData } from "./validations/authdata.validation";
+import cookies from "cookie-parser"
 
+import { zodErrorFormatter } from "../utils/zodError";
 const JWT_SECRET = process.env.JWT_SECRET || "my_super_secret_key_123";
-
-interface ISignUpData {
-    name: string;
-    email: string;
-    password: string;
-    role: "buyer" | "seller" | "admin";
-}
 
 interface ILoginData {
     email: string;
@@ -18,48 +15,63 @@ interface ILoginData {
 }
 export const signUp = async (req: Request, res: Response) => {
     try {
-        const { name, email, password, role } = req.body as ISignUpData;
-        const exitUser = await User.findOne({ email });
-        const hashedPassword = await bcrypt.hash(password, 10)
-        if (exitUser) {
+        // Validate incoming data
+        const safedata = SignupSchema.safeParse(req.body);
+
+        if (!safedata.success) {
+            return res.status(400).json(zodErrorFormatter(safedata.error));
+        }
+
+        const { name, email, password, role } = safedata.data as SignupData;
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
             return res.status(400).json({
                 message: "User already exists",
-                user: exitUser
-            })
+                user: existingUser
+            });
         }
-        const newuser = new User({
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new User({
             name,
             email,
             password: hashedPassword,
             role
-        })
+        });
 
-        const saveduser = await newuser.save()
-        const jwtToken = jwt.sign({
-            id: saveduser._id,
-            role: saveduser.role
-        }, JWT_SECRET, { expiresIn: '7d' })
+        const savedUser = await newUser.save();
 
-        // this code removes password from the user object before sending response
+        const jwtToken = jwt.sign(
+            { id: savedUser._id, role: savedUser.role },
+            JWT_SECRET,
+            { expiresIn: "7d" }
+        );
 
-        const { password: _, ...userData } = saveduser.toObject();
+        const { password: _, ...userData } = savedUser.toObject();
+
         return res.status(201).json({
             message: "User created successfully",
             user: userData,
-            token: jwtToken,
+            token: jwtToken
         });
     } catch (error: any) {
+        console.error("Signup error:", error);
         return res.status(500).json({
-            message: "oops! something went wrong!", error: error.message
-
-        })
+            message: "Oops! Something went wrong!",
+            errors: error.errors || error.message
+        });
     }
-
 }
 
 
 export const login = async (req: Request, res: Response) => {
-    const { email, password } = req.body as ILoginData;
+    const safedata = LoginSchema.safeParse(req.body);
+    if (!safedata.success) {
+        return res.status(400).json(zodErrorFormatter(safedata.error));
+    }
+    const { email, password } = safedata.data as LoginData;
 
     try {
         const user = await User.findOne({ email });
