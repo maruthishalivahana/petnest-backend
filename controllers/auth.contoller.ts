@@ -2,9 +2,8 @@ import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
-import { SignupSchema, LoginSchema } from "./validations/authdata.validation";
-import { SignupData, LoginData } from "./validations/authdata.validation";
-import cookies from "cookie-parser"
+import { SignupSchema, LoginSchema } from "../validations/authdata.validation";
+import { SignupData, LoginData } from "../validations/authdata.validation";
 
 import { zodErrorFormatter } from "../utils/zodError";
 const JWT_SECRET = process.env.JWT_SECRET || "my_super_secret_key_123";
@@ -52,7 +51,7 @@ export const signUp = async (req: Request, res: Response) => {
         res.cookie('token', jwtToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            maxAge: 7 * 24 * 60 * 60 * 1000
 
         })
         const { password: _, ...userData } = savedUser.toObject();
@@ -100,7 +99,7 @@ export const login = async (req: Request, res: Response) => {
         res.cookie('token', jwtToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            maxAge: 7 * 24 * 60 * 60 * 1000
 
         })
         const { password: _, ...userData } = user.toObject();
