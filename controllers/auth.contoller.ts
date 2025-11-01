@@ -4,14 +4,9 @@ import User from "../models/User";
 import jwt from "jsonwebtoken";
 import { SignupSchema, LoginSchema } from "../validations/authdata.validation";
 import { SignupData, LoginData } from "../validations/authdata.validation";
-
 import { zodErrorFormatter } from "../utils/zodError";
 const JWT_SECRET = process.env.JWT_SECRET || "my_super_secret_key_123";
 
-interface ILoginData {
-    email: string;
-    password: string;
-}
 export const signUp = async (req: Request, res: Response) => {
     try {
         // Validate incoming data
