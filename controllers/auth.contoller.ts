@@ -43,6 +43,7 @@ export const signUp = async (req: Request, res: Response) => {
         const savedUser = await newUser.save();
         try {
             await sendOtpEmail(email, otp);
+            console.log('otp sent to new user')
         } catch (emailErr: any) {
             console.error(`Failed to send OTP email during signup for ${email}:`, emailErr);
             const { password: _, ...userData } = savedUser.toObject();
@@ -69,6 +70,7 @@ export const signUp = async (req: Request, res: Response) => {
         const { password: _, ...userData } = savedUser.toObject();
 
         return res.status(201).json({
+
             message: "User created successfully check your email for OTP verification",
             user: userData,
             // token: jwtToken
