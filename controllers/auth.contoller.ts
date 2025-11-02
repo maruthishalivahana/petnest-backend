@@ -230,7 +230,9 @@ export const login = async (req: Request, res: Response) => {
         res.cookie('token', jwtToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: 7 * 24 * 60 * 60 * 1000
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/',
+            sameSite: 'none'
         });
 
         const { password: _, otpCode, ...userData } = user.toObject();
@@ -238,7 +240,6 @@ export const login = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: "Login successful!",
             user: userData,
-            token: jwtToken
         });
     } catch (error: any) {
         console.error("Login error:", error);
