@@ -1,9 +1,9 @@
 import express from "express";
-import { signUp } from "../controllers/auth.contoller";
-import { login } from "../controllers/auth.contoller"
+import { signUp, login, verifyOtpController, resendOtp } from "../controllers/auth.contoller";
 
 export const authRouter = express.Router();
 
 authRouter.post('/signup', signUp);
+authRouter.post('/verify-otp', verifyOtpController);
+authRouter.post('/resend-otp', resendOtp);
 authRouter.post('/login', login);
-
