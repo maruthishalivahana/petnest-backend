@@ -9,8 +9,9 @@ export interface IUser extends Document {
     phoneNumber?: string;
     bio?: string;
     location?: string;
-    otpCode: number;
-    otpExpiry: number
+    otpCode?: string; // Store hashed OTP
+    otpExpiry?: number;
+    isVerified: boolean; // Track email verification status
     preferences?: Record<string, any>;
     isBanned: boolean;
     createdAt: Date;
@@ -31,11 +32,14 @@ const UserSchema: Schema<IUser> = new Schema(
         preferences: { type: Schema.Types.Mixed },
         isBanned: { type: Boolean, default: false },
         otpCode: {
-            type: Number,
-            required: true
+            type: String, // Store hashed OTP as string
         },
         otpExpiry: {
             type: Number,
+        },
+        isVerified: {
+            type: Boolean,
+            default: false // Users start unverified
         },
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date, default: Date.now }
