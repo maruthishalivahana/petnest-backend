@@ -9,6 +9,7 @@ import express from 'express';
 import connectDB from './config/database';
 import { authRouter } from './routes/user.routes';
 import { buyerRouter } from './routes/buyer.routes';
+import { adminRouter } from './routes/admin.routes';
 
 const app = express();
 app.use(cookieParser());
@@ -16,6 +17,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/v1/api/auth', authRouter);
 app.use('/v1/api/buyer', buyerRouter);
+app.use('/v1/api/admin', adminRouter);
 
 const PORT = process.env.PORT || 8080;
 console.log(" JWT_SECRET loaded:", !!process.env.JWT_SECRET);

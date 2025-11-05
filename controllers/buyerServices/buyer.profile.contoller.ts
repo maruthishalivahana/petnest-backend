@@ -178,13 +178,3 @@ export const getBuyerProfileById = async (req: Request, res: Response) => {
 
 }
 
-// const getBuyerProfile = async (req: Request, res: Response) => {
-//     try {
-//         const buyerId = req.user?.id;
-
-
-//     } catch (error) {
-
-//     }
-
-// }
