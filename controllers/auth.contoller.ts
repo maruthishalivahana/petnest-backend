@@ -8,7 +8,10 @@ import { SignupSchema, LoginSchema } from "../validations/authdata.validation";
 import { SignupData, LoginData } from "../validations/authdata.validation";
 import { zodErrorFormatter } from "../utils/zodError";
 
-const JWT_SECRET = process.env.JWT_SECRET || "my_super_secret_key_123";
+const JWT_SECRET = process.env.JWT_SECRET;
+// if (!JWT_SECRET) {
+//     throw new Error("JWT_SECRET environment variable is not defined");
+// }
 const OTP_EXPIRY_MINUTES = 10; // 10 minutes for OTP validity
 
 export const signUp = async (req: Request, res: Response) => {
@@ -229,7 +232,7 @@ export const login = async (req: Request, res: Response) => {
 
         res.cookie('token', jwtToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/',
             sameSite: 'none'
