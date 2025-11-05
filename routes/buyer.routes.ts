@@ -1,5 +1,5 @@
 import express from "express";
-import { UpdateBuyerProfile } from "../controllers/buyerServices/buyer.profile.contoller";
+import { UpdateBuyerProfile, getBuyerProfileById } from "../controllers/buyerServices/buyer.profile.contoller";
 import { verifyToken, requireRole } from "../middlewares/auth.middleware";
 import upload from "../middlewares/upload";
 
@@ -12,5 +12,11 @@ buyerRouter.patch(
     requireRole(['buyer']),
     upload.single('profilePic'),
     UpdateBuyerProfile
+);
+buyerRouter.get(
+    '/profile/:buyerId',
+    verifyToken,
+    requireRole(['buyer']),
+    getBuyerProfileById
 );
 

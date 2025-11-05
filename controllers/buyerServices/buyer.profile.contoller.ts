@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from "../../models/User";
 import { z } from "zod";
+import { trace } from 'console';
 
 
 //request body 
@@ -138,3 +139,53 @@ export const UpdateBuyerProfile = async (req: Request, res: Response) => {
 
 }
 
+
+export const getBuyerProfileById = async (req: Request, res: Response) => {
+
+    try {
+        const token = req.cookies?.token;
+        if (!token) {
+            return res.status(403).json({ message: "No token provided" });
+        }
+
+        const buyerId = req.params.buyerId;
+        if (!buyerId) {
+            return res.status(400).json({
+                message: "invalid buyer id"
+            })
+        }
+        const user = await User.findById(buyerId);
+        if (!user) {
+            return res.status(404).json({
+                message: "user not found"
+
+            })
+        }
+        if (user.role !== 'buyer') {
+            return res.status(403).json({
+                message: "access denied"
+            })
+        }
+
+        return res.status(200).json({
+            message: "buyer profile fetched successfully",
+            user: user
+        })
+
+    } catch (error) {
+
+    }
+
+
+}
+
+// const getBuyerProfile = async (req: Request, res: Response) => {
+//     try {
+//         const buyerId = req.user?.id;
+
+
+//     } catch (error) {
+
+//     }
+
+// }
