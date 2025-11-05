@@ -14,7 +14,30 @@ import { adminRouter } from './routes/admin.routes';
 const app = express();
 app.use(cookieParser());
 
+// Add request logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
+
+// Set timeout for all requests (30 seconds)
+app.use((req, res, next) => {
+    req.setTimeout(30000);
+    res.setTimeout(30000);
+    next();
+});
+
 app.use(express.json());
+
+// Health check endpoint (no authentication required)
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        message: 'Server is running',
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.use('/v1/api/auth', authRouter);
 app.use('/v1/api/buyer', buyerRouter);
 app.use('/v1/api/admin', adminRouter);
@@ -38,3 +61,4 @@ const startServer = async () => {
 };
 
 startServer();
+
