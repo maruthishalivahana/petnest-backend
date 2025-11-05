@@ -25,7 +25,9 @@ export const BuyerProfileSchema = z.object({
 
 })
 
-
+interface MulterFile extends Express.Multer.File {
+    path: string;
+}
 
 
 
@@ -34,7 +36,7 @@ export const UpdateBuyerProfile = async (req: Request, res: Response) => {
         const buyerId = req.user?.id;
         const profiledata = BuyerProfileSchema.parse(req.body);
         const user = await User.findOne({ _id: buyerId });
-        const profilePicUrl = req.file ? (req.file as any).path : user?.profilePic;
+        const profilePicUrl = req.file ? (req.file as MulterFile).path : user?.profilePic;
 
         if (!buyerId) {
             return res.status(400).json({
