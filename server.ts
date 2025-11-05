@@ -1,23 +1,26 @@
-import dotenv from 'dotenv';
-// Load environment variables first
-dotenv.config();
-import cookies from 'cookie-parser'
+// Validate required environment variables
+if (!process.env.JWT_SECRET) {
+    console.error("ERROR: JWT_SECRET is not set in .env file");
+    process.exit(1);
+}
+
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import connectDB from './config/database';
 import { authRouter } from './routes/user.routes';
+import { buyerRouter } from './routes/buyer.routes';
+
 const app = express();
-app.use(cookies());
-// Validate required environment variables
-if (!process.env.JWT_SECRET) {
-    console.error("WARNING: JWT_SECRET is not set in .env file. Using default (not recommended for production)");
-}
+app.use(cookieParser());
 
 app.use(express.json());
 app.use('/v1/api/auth', authRouter);
+app.use('/v1/api/buyer', buyerRouter);
 
 const PORT = process.env.PORT || 8080;
-console.log("✅ Email User:", process.env.SMTP_USER ? true : false);
-console.log("✅ Email Pass loaded:", !!process.env.SMTP_PASS);
+console.log(" JWT_SECRET loaded:", !!process.env.JWT_SECRET);
+console.log("Email User:", process.env.SMTP_USER ? true : false);
+console.log("Email Pass loaded:", !!process.env.SMTP_PASS);
 
 
 const startServer = async () => {
