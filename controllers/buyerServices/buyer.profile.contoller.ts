@@ -4,15 +4,14 @@ import { z } from "zod";
 
 //request body 
 /**
- * name
- * email
- * profilepic
- * phonenumber
- * bio
- * location
- * preferences
- * isverified
- * 
+ * name:string
+ * email:string
+ * profilepic:url
+ * phonenumber:string
+ * bio:string
+ * location:string
+ * preferences:string[]
+ * isverified:boolean
  */
 
 export const BuyerProfileSchema = z.object({
@@ -84,3 +83,4 @@ export const UpdateBuyerProfile = async (req: Request, res: Response) => {
     }
 
 }
+
