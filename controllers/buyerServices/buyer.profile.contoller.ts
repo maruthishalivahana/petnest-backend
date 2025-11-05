@@ -28,11 +28,13 @@ export const BuyerProfileSchema = z.object({
 
 
 
+
 export const UpdateBuyerProfile = async (req: Request, res: Response) => {
     try {
         const buyerId = req.user?.id;
         const profiledata = BuyerProfileSchema.parse(req.body);
-
+        const user = await User.findOne({ _id: buyerId });
+        const profilePicUrl = req.file ? (req.file as any).path : user?.profilePic;
 
         if (!buyerId) {
             return res.status(400).json({
@@ -40,30 +42,47 @@ export const UpdateBuyerProfile = async (req: Request, res: Response) => {
             })
         }
 
-        const user = await User.findOne({ _id: buyerId });
 
         if (!user) {
             return res.status(404).json({
                 message: "user not found"
             })
         }
+
+
+
         if (user.role !== 'buyer') {
             return res.status(403).json({
                 message: "access denied"
             })
         }
-        const profilePicUrl = req.file ? (req.file as any).path : user.profilePic;
+
+
+        const UpdatedFields: any = {
+            name: profiledata.name,
+            profilePic: profilePicUrl,
+        }
+
+        // if the optional fields are provided, add them to the update object else ignore and it does not store in DB as undefined
+        if (profiledata.phoneNumber !== undefined) {
+            UpdatedFields.phoneNumber = profiledata.phoneNumber;
+        }
+        if (profiledata.bio !== undefined) {
+            UpdatedFields.bio = profiledata.bio;
+        }
+        if (profiledata.location !== undefined) {
+            UpdatedFields.location = profiledata.location;
+        }
+        if (profiledata.preferences !== undefined) {
+            UpdatedFields.preferences = profiledata.preferences;
+        }
+
 
         const updatedUser = await User.findByIdAndUpdate({
             _id: buyerId
         }, {
             $set: {
-                name: profiledata.name,
-                profilePic: profilePicUrl,
-                phoneNumber: profiledata.phoneNumber,
-                bio: profiledata.bio,
-                location: profiledata.location,
-                preferences: profiledata.preferences,
+                ...UpdatedFields
             }
         }, { new: true });
 
