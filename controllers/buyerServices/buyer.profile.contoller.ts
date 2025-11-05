@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import User from "../../models/User";
 import { z } from "zod";
-import { trace } from 'console';
 
 
 //request body 
