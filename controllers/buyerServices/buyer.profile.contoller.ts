@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import User from "../../models/User";
 import { z } from "zod";
 
+
 //request body 
 /**
  * name:string
@@ -74,11 +75,19 @@ export const UpdateBuyerProfile = async (req: Request, res: Response) => {
 
 
     } catch (error) {
-        console.error("Buyer profile update error:", error)
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: error.issues
+            });
+        }
         return res.status(500).json({
-            message: "oops! somthing want wrong",
-            errors: (error as Error).message
-        })
+            message: "Oops! Something went wrong",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: (error as Error).message
+            })
+        });
+
 
     }
 
