@@ -3,6 +3,7 @@ import express from "express";
 import { verifyToken, requireRole } from "../middlewares/auth.middleware";
 import { getAllUsersController } from "../controllers/getUsers/getusers.admin.controller";
 import { deleteuserByIdController } from "../controllers/deleteuser/deleteuser.controller";
+import { getAllPendingRequestsController } from "../controllers/pendingRequestController/getPendingRequests";
 
 export const adminRouter = express.Router();
 
@@ -17,4 +18,10 @@ adminRouter.delete(
     verifyToken,
     requireRole(['admin']),
     deleteuserByIdController
+);
+adminRouter.get(
+    '/seller-requests/pending',
+    verifyToken,
+    requireRole(['admin']),
+    getAllPendingRequestsController
 );
