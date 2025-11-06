@@ -16,6 +16,7 @@ export interface ISeller extends Document {
         shopImage?: string
     };
     status: 'pending' | 'verified' | 'rejected' | 'suspended',
+
     verificationNotes?: string,
     verificationDate?: Date,
     analytics?: {
@@ -91,5 +92,5 @@ const sellerSchema: Schema<ISeller> = new Schema({
 
 }, { timestamps: true })
 
-const seller: Model<ISeller> = mongoose.model<ISeller>('SellerProfile', sellerSchema)
+const seller: Model<ISeller> = mongoose.model<ISeller>('SellerRequests', sellerSchema)
 export default seller
