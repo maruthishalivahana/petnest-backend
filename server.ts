@@ -10,6 +10,8 @@ import connectDB from './config/database';
 import { authRouter } from './routes/user.routes';
 import { buyerRouter } from './routes/buyer.routes';
 import { adminRouter } from './routes/admin.routes';
+import { sellerRouter } from './routes/seller.routes';
+
 
 const app = express();
 app.use(cookieParser());
@@ -27,7 +29,14 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.json());
+// Only parse JSON for non-multipart requests
+app.use((req, res, next) => {
+    if (req.is('multipart/form-data')) {
+        // Skip JSON parsing for multipart requests
+        return next();
+    }
+    express.json()(req, res, next);
+});
 
 // Health check endpoint (no authentication required)
 app.get('/health', (req, res) => {
@@ -41,6 +50,7 @@ app.get('/health', (req, res) => {
 app.use('/v1/api/auth', authRouter);
 app.use('/v1/api/buyer', buyerRouter);
 app.use('/v1/api/admin', adminRouter);
+app.use('/v1/api/seller', sellerRouter);
 
 const PORT = process.env.PORT || 8080;
 console.log(" JWT_SECRET loaded:", !!process.env.JWT_SECRET);
