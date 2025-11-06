@@ -4,6 +4,8 @@ import { verifyToken, requireRole } from "../middlewares/auth.middleware";
 import { getAllUsersController } from "../controllers/getUsers/getusers.admin.controller";
 import { deleteuserByIdController } from "../controllers/deleteuser/deleteuser.controller";
 import { getAllPendingRequestsController } from "../controllers/pendingRequestController/getPendingRequests";
+import verifySellerRequestController from "../controllers/sellerRequestverifyController/sellerVerification";
+
 
 export const adminRouter = express.Router();
 
@@ -24,4 +26,11 @@ adminRouter.get(
     verifyToken,
     requireRole(['admin']),
     getAllPendingRequestsController
+);
+
+adminRouter.put(
+    '/seller-requests/:sellerRequestId/:status',
+    verifyToken,
+    requireRole(['admin']),
+    verifySellerRequestController
 );
