@@ -1,8 +1,9 @@
 import express from "express";
-import { UpdateBuyerProfile, getBuyerProfileById } from "../controllers/buyerServices/buyer.profile.contoller";
 import { verifyToken, requireRole } from "../middlewares/auth.middleware";
 import upload from "../middlewares/upload";
 
+import { buyerProfileUpdateController } from "../controllers/updateBuyerController/buyerupdate.controller";
+import { getBuyerProfileByIdController } from "../controllers/getBuyerProfile/getBuyerProfile.controller";
 
 export const buyerRouter = express.Router();
 
@@ -11,12 +12,12 @@ buyerRouter.patch(
     verifyToken,
     requireRole(['buyer']),
     upload.single('profilePic'),
-    UpdateBuyerProfile
+    buyerProfileUpdateController
 );
 buyerRouter.get(
     '/profile/:buyerId',
     verifyToken,
     requireRole(['buyer']),
-    getBuyerProfileById
+    getBuyerProfileByIdController
 );
 
