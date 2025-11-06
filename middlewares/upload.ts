@@ -7,7 +7,7 @@ const profilePicStorage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: "petnest/profiles", // folder name in cloudinary
-        allowed_formats: ["jpg", "jpeg", "png", "webp", "pdf", "doc", "docx"],
+        allowed_formats: ["jpg", "jpeg", "png", "webp"],
         resource_type: "image",
     } as any
 });
