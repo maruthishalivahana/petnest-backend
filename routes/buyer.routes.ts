@@ -4,6 +4,7 @@ import upload from "../middlewares/upload";
 
 import { buyerProfileUpdateController } from "../controllers/updateBuyerController/buyerupdate.controller";
 import { getBuyerProfileByIdController } from "../controllers/getBuyerProfile/getBuyerProfile.controller";
+import { getUserBreedController } from "../controllers/breedController/getUserBreed";
 
 export const buyerRouter = express.Router();
 
@@ -20,4 +21,11 @@ buyerRouter.get(
     requireRole(['buyer']),
     getBuyerProfileByIdController
 );
+buyerRouter.get(
+    '/breeds',
+    verifyToken,
+    requireRole(['buyer']),
+    getUserBreedController
+);
+
 
