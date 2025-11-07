@@ -8,7 +8,7 @@ import verifySellerRequestController from "../controllers/sellerRequestverifyCon
 import { addSpeciesController } from '../controllers/SpeciesController/Species.Contoller';
 import { getAllSpeciesController } from '../controllers/SpeciesController/getAllSpecies.contoller';
 import { deleteSpeciesByIdController } from '../controllers/SpeciesController/deleteSpecies.controller';
-
+import { addBreedController } from '../controllers/breedController/addBreed';
 
 export const adminRouter = express.Router();
 //get all users
@@ -65,4 +65,10 @@ adminRouter.delete(
     verifyToken,
     requireRole(['admin']),
     deleteSpeciesByIdController
+);
+adminRouter.post(
+    '/breeds',
+    verifyToken,
+    requireRole(['admin']),
+    addBreedController
 );
