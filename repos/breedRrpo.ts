@@ -35,13 +35,13 @@ export const populateBreeds = async () => {
     }
 }
 
-export const getBreedById = async (breedId: string) => {
+export const getBreed = async () => {
     try {
-        const breed = await Breed.findById(breedId).populate('species', "speciesName scientificName category allowedForTrade");
+        const breed = await Breed.find({}).populate('species', "speciesName");
         return breed;
     } catch (error: any) {
-        console.error("Error fetching breed by id:", error);
-        throw new Error("Error fetching breed by id: " + error.message);
+        console.error("Error fetching breeds ", error);
+        throw new Error("Error fetching breeds  : " + error.message);
     }
 }
 export const deleteBreedById = async (breedId: string) => {

@@ -9,7 +9,7 @@ import { addSpeciesController } from '../controllers/SpeciesController/Species.C
 import { getAllSpeciesController } from '../controllers/SpeciesController/getAllSpecies.contoller';
 import { deleteSpeciesByIdController } from '../controllers/SpeciesController/deleteSpecies.controller';
 import { addBreedController } from '../controllers/breedController/addBreed';
-
+import { getAllBreedsController } from '../controllers/breedController/getAllBreeds';
 export const adminRouter = express.Router();
 //get all users
 adminRouter.get(
@@ -66,9 +66,19 @@ adminRouter.delete(
     requireRole(['admin']),
     deleteSpeciesByIdController
 );
+
+//adding breed
 adminRouter.post(
     '/breeds',
     verifyToken,
     requireRole(['admin']),
     addBreedController
+);
+
+//get all breeds
+adminRouter.get(
+    '/breeds',
+    verifyToken,
+    requireRole(['admin']),
+    getAllBreedsController
 );
