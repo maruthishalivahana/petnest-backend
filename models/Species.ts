@@ -21,11 +21,11 @@ const speciesSchema: Schema<ISpecies> = new Schema({
         required: true,
         unique: true
     },
-    scientificName: {
+    category: {
         type: String,
         required: true
     },
-    category: {
+    scientificName: {
         type: String,
         required: true
     },
@@ -34,7 +34,8 @@ const speciesSchema: Schema<ISpecies> = new Schema({
     },
     allowedForTrade: {
         type: Boolean,
-        required: true
+        required: true,
+        default: false
     },
     referenceAct: {
         type: String

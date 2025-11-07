@@ -2,7 +2,7 @@ import { Document, Types, Schema, model, Model } from 'mongoose';
 
 export interface IBreed extends Document {
     name: string;
-    species: string;
+    species: Types.ObjectId;
     category: string;
     origin?: string;
     localName?: string;
@@ -18,39 +18,40 @@ const BreedSchema: Schema<IBreed> = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true // bacause  to avoid  duplicate names
+        unique: true
     },
     species: {
+        type: Schema.Types.ObjectId,
+        ref: 'SpeciesRegulation',
+        required: true
+    },
+    category: {
         type: String,
-        required: true,
-        category: {
-            type: String,
-            required: true,
-        },
-        origin: {
-            type: String
-        },
-        localName: {
-            type: String
-        },
-        isNative: {
-            type: String,
-            default: false
-        },
-        legalStatus: {
-            type: String,
-            enum: ['Allowed', 'Restricted', 'Protected'],
-            required: true
-        },
-        regulationRef: {
-            type: Schema.Types.ObjectId,
-            ref: 'SpeciesRegulation'
-        },
-        description: {
-            type: String
-        }
+        required: true
+    },
+    origin: {
+        type: String
+    },
+    localName: {
+        type: String
+    },
+    isNative: {
+        type: Boolean,
+        default: false
+    },
+    legalStatus: {
+        type: String,
+        enum: ['Allowed', 'Restricted', 'Protected'],
+        required: true
+    },
+    regulationRef: {
+        type: Schema.Types.ObjectId,
+        ref: 'SpeciesRegulation'
+    },
+    description: {
+        type: String
     }
-}, { timestamps: true })
+}, { timestamps: true });
 
-const Breed: Model<IBreed> = model<IBreed>('Breed', BreedSchema)
+const Breed: Model<IBreed> = model<IBreed>('Breed', BreedSchema);
 export default Breed;

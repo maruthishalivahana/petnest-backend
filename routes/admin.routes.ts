@@ -5,22 +5,25 @@ import { getAllUsersController } from "../controllers/getUsers/getusers.admin.co
 import { deleteuserByIdController } from "../controllers/deleteuser/deleteuser.controller";
 import { getAllPendingRequestsController } from "../controllers/pendingRequestController/getPendingRequests";
 import verifySellerRequestController from "../controllers/sellerRequestverifyController/sellerVerification";
+import { addSpeciesController } from '../controllers/addSpeciesController/Species.Contoller';
 
 
 export const adminRouter = express.Router();
-
+//get all users
 adminRouter.get(
     '/users',
     verifyToken,
     requireRole(['admin']),
     getAllUsersController
 );
+//delete user by id
 adminRouter.delete(
     '/user/:userId',
     verifyToken,
     requireRole(['admin']),
     deleteuserByIdController
 );
+// getting all pending seller requests
 adminRouter.get(
     '/seller-requests/pending',
     verifyToken,
@@ -28,9 +31,20 @@ adminRouter.get(
     getAllPendingRequestsController
 );
 
+
+// verifying seller requests
 adminRouter.put(
     '/seller-requests/:sellerRequestId/:status',
     verifyToken,
     requireRole(['admin']),
     verifySellerRequestController
 );
+
+
+//adding species
+adminRouter.post(
+    '/species',
+    verifyToken,
+    requireRole(['admin']),
+    addSpeciesController
+)
