@@ -3,7 +3,6 @@ import { Document, Types, Schema, model, Model } from 'mongoose';
 export interface IBreed extends Document {
     name: string;
     species: Types.ObjectId;
-    category: string;
     origin?: string;
     localName?: string;
     isNative?: boolean;
@@ -25,10 +24,7 @@ const BreedSchema: Schema<IBreed> = new Schema({
         ref: 'SpeciesRegulation',
         required: true
     },
-    category: {
-        type: String,
-        required: true
-    },
+
     origin: {
         type: String
     },

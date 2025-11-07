@@ -11,3 +11,4 @@ export const BreedSchema = z.object({
     description: z.string().optional(),
 
 })
+export type BreedType = z.infer<typeof BreedSchema>;
