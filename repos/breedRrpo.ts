@@ -38,7 +38,13 @@ export const populateBreeds = async () => {
 export const getBreed = async () => {
     try {
         const breed = await Breed.find({}).populate('species', "speciesName");
-        return breed;
+
+        const formatted = breed.map(b => ({
+            _id: b._id,
+            label: b.name,
+            species: (b.species as any)?.speciesName || ""
+        }));
+        return formatted;
     } catch (error: any) {
         console.error("Error fetching breeds ", error);
         throw new Error("Error fetching breeds  : " + error.message);
