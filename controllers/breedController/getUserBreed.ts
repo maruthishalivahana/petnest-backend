@@ -14,6 +14,7 @@ export const getUserBreedController = async (req: Request, res: Response) => {
         }
 
         const breed = await getBreed();
+
         console.log("Breeds fetched:", breed?.length || 0);
 
         if (!breed || breed.length === 0) {
