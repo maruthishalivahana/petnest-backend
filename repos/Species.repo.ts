@@ -9,10 +9,9 @@ export const addSpecies = async (speciesData: SpeciesType) => {
             throw new Error("Species with this name already exists.");
         }
         console.error("Error adding species:", error);
+        throw new Error("Error adding species");
     }
 }
-
-
 export const findSpeciesByName = async (speciesName: string) => {
     try {
         const speciesExists = await species.findOne({ speciesName });
@@ -20,5 +19,26 @@ export const findSpeciesByName = async (speciesName: string) => {
 
     } catch (error) {
         console.error("Error finding species by name:", error);
+        throw new Error("Error finding species by name");
+    }
+}
+
+export const getAllSpecies = async () => {
+    try {
+        const allSpecies = await species.find({});
+        return allSpecies;
+    } catch (error) {
+        console.error("Error getting all species:", error);
+        throw new Error("Error getting all species");
+    }
+}
+
+export const deleteSpeciesById = async (speciesId: string) => {
+    try {
+        const deletedSpecie = await species.findByIdAndDelete(speciesId);
+        return deletedSpecie;
+    } catch (error: any) {
+        console.error("Error deleting species by id:", error);
+        throw new Error("Error deleting species by id: " + error.message);
     }
 }
