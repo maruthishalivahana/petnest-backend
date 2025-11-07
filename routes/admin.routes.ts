@@ -5,7 +5,9 @@ import { getAllUsersController } from "../controllers/getUsers/getusers.admin.co
 import { deleteuserByIdController } from "../controllers/deleteuser/deleteuser.controller";
 import { getAllPendingRequestsController } from "../controllers/pendingRequestController/getPendingRequests";
 import verifySellerRequestController from "../controllers/sellerRequestverifyController/sellerVerification";
-import { addSpeciesController } from '../controllers/addSpeciesController/Species.Contoller';
+import { addSpeciesController } from '../controllers/SpeciesController/Species.Contoller';
+import { getAllSpeciesController } from '../controllers/SpeciesController/getAllSpecies.contoller';
+import { deleteSpeciesByIdController } from '../controllers/SpeciesController/deleteSpecies.controller';
 
 
 export const adminRouter = express.Router();
@@ -47,4 +49,20 @@ adminRouter.post(
     verifyToken,
     requireRole(['admin']),
     addSpeciesController
-)
+);
+
+//get all species
+adminRouter.get(
+    '/species',
+    verifyToken,
+    requireRole(['admin']),
+    getAllSpeciesController
+);
+
+//delete species by id
+adminRouter.delete(
+    '/species/:id',
+    verifyToken,
+    requireRole(['admin']),
+    deleteSpeciesByIdController
+);

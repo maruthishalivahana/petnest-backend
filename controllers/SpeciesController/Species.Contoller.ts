@@ -1,8 +1,17 @@
-import { AddSpecies } from '../../AdminServices/addSpeciesService/species'
+import { AddSpecies } from '../../AdminServices/SpeciesService/species'
 import { Request, Response } from 'express'
+import { SpeciesSchema } from '../../validations/Species.validation';
 export const addSpeciesController = async (req: Request, res: Response) => {
     try {
         const adminid = req.user?.id;
+        const validationData = SpeciesSchema.safeParse(req.body);
+        if (!validationData.success) {
+            return res.status(400).json({
+                message: "Invalid species data",
+                errors: validationData.error.issues[0]
+            });
+        }
+
         if (!adminid) {
             return res.status(403).json({
                 message: "Access denied"
