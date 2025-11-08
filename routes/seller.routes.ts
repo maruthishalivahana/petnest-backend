@@ -1,8 +1,12 @@
-import { SellerFromRequestController } from "../controllers/SellerFromRequestController/SellerFromRequest";
+import { SellerFromRequestController } from "../controllers/SellerController/SellerFromRequest";
 import express from "express";
 import { verifyToken, requireRole } from "../middlewares/auth.middleware";
 import { documentUpload } from "../middlewares/upload";
 import { handleMulterErrors } from "../middlewares/uploadErrors";
+import seller from "../models/SellerProfile";
+import { addPetController } from '../controllers/SellerController/addpet.controller'
+import { getPetsBySellerController } from '../controllers/SellerController/getpetsbySeller.controller'
+import { uploadPet } from "../middlewares/upload";
 
 export const sellerRouter = express.Router();
 
@@ -19,4 +23,19 @@ sellerRouter.post(
     requireRole(["seller"]),
     handleMulterErrors(uploadFields),
     SellerFromRequestController
+);
+
+sellerRouter.post(
+    "/pet",
+    verifyToken,
+    requireRole(["seller"]),
+    uploadPet.array('images', 3),
+    addPetController
+);
+
+sellerRouter.get(
+    "/pets",
+    verifyToken,
+    requireRole(["seller"]),
+    getPetsBySellerController
 );

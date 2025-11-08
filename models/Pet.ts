@@ -4,6 +4,7 @@ import Breed from './Breed.js';
 export interface IPet extends Document {
     sellerId: Types.ObjectId;
     breedId: Types.ObjectId;
+    breedName: string;
     name: string;
     category: string;
     gender: 'male' | 'female' | 'unknown';
@@ -25,11 +26,6 @@ export interface IPet extends Document {
         approvedBy?: Types.ObjectId;
         approvedAt?: Date;
     };
-    // metrics?: {
-    //     views?: number;
-    //     saves?: number;
-    //     whatsappClicks?: number;
-    // };
     createdAt: Date;
     updatedAt: Date;
 }
@@ -39,12 +35,16 @@ const PetSchema: Schema<IPet> = new Schema(
     {
         sellerId: {
             type: Schema.Types.ObjectId,
-            ref: 'SellerProfile',
+            ref: 'SellerRequests',
             required: true
         },
         breedId: {
             type: Schema.Types.ObjectId,
             ref: 'Breed',
+            required: true
+        },
+        breedName: {
+            type: String,
             required: true
         },
         name: {
@@ -53,7 +53,7 @@ const PetSchema: Schema<IPet> = new Schema(
         },
         category: {
             type: String,
-            required: true
+
         },
         gender: {
             type: String,
@@ -126,7 +126,7 @@ const PetSchema: Schema<IPet> = new Schema(
 PetSchema.pre('save', async function (next) {
     if (this.isModified('breedId')) {
         const breed = await Breed.findById(this.breedId);
-        if (breed) this.category = breed.species;
+        if (breed) this.category = String(breed.species);
     }
     next();
 });
