@@ -4,6 +4,7 @@ export interface IBreed extends Document {
     name: string;
     species: Types.ObjectId;
     origin?: string;
+    category?: string;
     localName?: string;
     isNative?: boolean;
     legalStatus: 'Allowed' | 'Restricted' | 'Protected';
@@ -26,6 +27,9 @@ const BreedSchema: Schema<IBreed> = new Schema({
     },
 
     origin: {
+        type: String
+    },
+    category: {
         type: String
     },
     localName: {

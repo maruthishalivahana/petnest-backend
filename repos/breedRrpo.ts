@@ -14,7 +14,7 @@ export const createbreed = async (breedData: BreedType) => {
 
 export const getBreedByName = async (breedName: string) => {
     try {
-        const breedEExists = await Breed.findOne({ name: breedName });
+        const breedEExists = await Breed.findOne({ name: breedName }).populate('species');
         return breedEExists;
 
     } catch (error: any) {
@@ -50,6 +50,17 @@ export const getBreed = async () => {
         throw new Error("Error fetching breeds  : " + error.message);
     }
 }
+
+export const getBreedById = async (breedId: string) => {
+    try {
+        const breed = await Breed.findById(breedId).populate('species');
+        return breed;
+    } catch (error: any) {
+        console.error("Error fetching breed by ID:", error);
+        throw new Error("Error fetching breed by ID: " + error.message);
+    }
+}
+
 export const deleteBreedById = async (breedId: string) => {
     try {
         const deletedBreed = await Breed.findByIdAndDelete(breedId);

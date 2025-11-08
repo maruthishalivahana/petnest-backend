@@ -52,3 +52,58 @@ export const getSellerById = async (sellerId: string) => {
         throw new Error("Failed to get seller request by id");
     }
 }
+
+export const getAllSellers = async () => {
+    try {
+        const sellers = await seller.find({ status: "verified" }).populate('userId', 'name email');
+        return sellers;
+    } catch (error) {
+        throw new Error("Failed to get all sellers");
+    }
+}
+
+export const getSeller = async (sellerId: string) => {
+    try {
+        console.log("getSeller - Input sellerId:", sellerId);
+
+        // Validate if sellerId is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+            console.log("Invalid ObjectId format");
+            return null;
+        }
+
+        const sellerObjectId = new mongoose.Types.ObjectId(sellerId);
+        const sellerExists = await seller.findOne({ _id: sellerObjectId });
+
+        console.log("getSeller - Found seller:", sellerExists ? { id: sellerExists._id, status: sellerExists.status } : null);
+
+        return sellerExists;
+    } catch (error) {
+        console.error("Error in getSeller:", error);
+        throw new Error("Failed to get seller");
+    }
+}
+
+export const getSellerByUserId = async (userId: string) => {
+    try {
+        console.log("getSellerByUserId - Input userId:", userId);
+
+        // Validate if userId is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.log("Invalid ObjectId format");
+            return null;
+        }
+
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        const sellerExists = await seller.findOne({ userId: userObjectId });
+
+        console.log("getSellerByUserId - Found seller:", sellerExists ? { id: sellerExists._id, status: sellerExists.status } : null);
+
+        return sellerExists;
+    } catch (error) {
+        console.error("Error in getSellerByUserId:", error);
+        throw new Error("Failed to get seller by user ID");
+    }
+}
+
+

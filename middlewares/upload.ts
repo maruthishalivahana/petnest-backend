@@ -18,7 +18,7 @@ const documentStorage = new CloudinaryStorage({
     params: {
         folder: "petnest/documents", // folder name in cloudinary
         allowed_formats: ["jpg", "jpeg", "png", "webp", "pdf"],
-        resource_type: "auto", // allows both images and PDFs
+        resource_type: "raw", // allows both images and PDFs
     } as any
 });
 
@@ -54,5 +54,29 @@ export const documentUpload = multer({
         }
     }
 });
+
+const petStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: "petnest/pet", // folder name in cloudinary
+        allowed_formats: ["jpg", "jpeg", "png", "webp"],
+        resource_type: "image",
+    } as any
+});
+
+export const uploadPet = multer({
+    storage: petStorage,
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB file size limit
+    fileFilter: (req, file, cb: FileFilterCallback) => {
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+        if (allowedMimeTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error("Invalid file type. Only JPEG, PNG, and WEBP are allowed."));
+        }
+    }
+})
+
+
 
 export default upload;
