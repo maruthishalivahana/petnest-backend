@@ -7,7 +7,9 @@ import seller from "../models/SellerProfile";
 import { addPetController } from '../controllers/SellerController/addpet.controller'
 import { getPetsBySellerController } from '../controllers/SellerController/getpetsbySeller.controller'
 import { deletePetController } from "../controllers/SellerController/Deletepet.controller";
+import { UpdatePetController } from "../controllers/SellerController/UpdatePet.controller";
 import { uploadPet } from "../middlewares/upload";
+
 
 export const sellerRouter = express.Router();
 
@@ -45,4 +47,10 @@ sellerRouter.delete(
     verifyToken,
     requireRole(["seller"]),
     deletePetController
+);
+sellerRouter.patch(
+    "/pet/:petId",
+    verifyToken,
+    requireRole(["seller"]),
+    UpdatePetController
 );

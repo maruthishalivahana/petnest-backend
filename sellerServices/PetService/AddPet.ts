@@ -5,16 +5,16 @@ import { PetType, PetValidationSchema } from "../../validations/addPet.validatio
 import { IPet } from "../../models/Pet";
 
 
-export const Addpet = async (petData: PetType & { sellerId: string }): Promise<IPet> => {
+export const Addpet = async (petData: PetType & { userId: string }): Promise<IPet> => {
     // Validate pet data
     const parseResult = PetValidationSchema.safeParse(petData);
     if (!parseResult.success) {
         throw parseResult.error;
     }
 
-    // Validate seller ID is provided
-    if (!petData.sellerId) {
-        throw new Error("Seller ID is required");
+    // Validate user ID is provided (from JWT token)
+    if (!petData.userId) {
+        throw new Error("User ID is required");
     }
 
     // Check if breed exists by name
@@ -25,16 +25,11 @@ export const Addpet = async (petData: PetType & { sellerId: string }): Promise<I
 
     console.log("Found breed:", { id: Breed._id, name: Breed.name, species: Breed.species });
 
-    // Validate seller exists and is verified
-    console.log("Looking for seller with ID:", petData.sellerId);
+    // Validate seller exists and is verified using userId from JWT token
+    console.log("Looking for seller with User ID:", petData.userId);
 
-    // Try to get seller by seller profile ID first, then by user ID
-    let sellerProfile = await getSeller(petData.sellerId);
-
-    if (!sellerProfile) {
-        console.log("Not found by seller ID, trying user ID...");
-        sellerProfile = await getSellerByUserId(petData.sellerId);
-    }
+    // Get seller profile by userId (from JWT token - secure)
+    const sellerProfile = await getSellerByUserId(petData.userId);
 
     console.log("Seller profile found:", sellerProfile ? { id: sellerProfile._id, userId: sellerProfile.userId, status: sellerProfile.status } : null);
 

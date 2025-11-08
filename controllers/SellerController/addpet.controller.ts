@@ -4,8 +4,8 @@ import { z } from "zod";
 export const addPetController = async (req: Request, res: Response) => {
 
     try {
-        const sellerId = req.user?.id;
-        if (!sellerId) {
+        const userId = req.user?.id;
+        if (!userId) {
             return res.status(403).json({
                 message: "Access denied"
             });
@@ -21,7 +21,7 @@ export const addPetController = async (req: Request, res: Response) => {
         const imageUrls = (req.files as Express.Multer.File[]).map(
             (file) => (file as any).path
         );
-        const newPet = await Addpet({ ...petData, sellerId, images: imageUrls });
+        const newPet = await Addpet({ ...petData, userId, images: imageUrls });
 
         return res.status(201).json({
             message: "Pet added successfully",
