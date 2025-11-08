@@ -1,4 +1,4 @@
-import { getAllPendingRequestsService } from "../../AdminServices/getAllpendingRequestService/pedingRequests";
+import { getAllPendingRequestsService } from "../../../AdminServices/getAllpendingRequestService/pedingRequests";
 import { Request, Response } from "express";
 import { z } from "zod";
 export const getAllPendingRequestsController = async (req: Request, res: Response) => {

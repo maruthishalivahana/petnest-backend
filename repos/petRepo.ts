@@ -114,3 +114,18 @@ export const deletePetById = async (petId: string) => {
         throw new Error("Error deleting pet by ID: " + (error as Error).message);
     }
 }
+
+export const Updatepet = async (petId: string, updateData: Partial<PetType>) => {
+    try {
+        const updatedpet = await pet.findByIdAndUpdate(
+            petId,
+            updateData,
+            { new: true }
+        );
+        return updatedpet;
+
+    } catch (error) {
+        console.error("Error updating pet:", error);
+        throw new Error("Error updating pet: " + (error as Error).message);
+    }
+}

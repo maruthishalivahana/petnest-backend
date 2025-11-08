@@ -1,4 +1,4 @@
-import { populateBreeds } from "../../repos/breedRrpo";
+import { populateBreeds } from "../../../repos/breedRrpo";
 import { Request, Response } from "express";
 export const getAllBreedsController = async (req: Request, res: Response) => {
     try {
