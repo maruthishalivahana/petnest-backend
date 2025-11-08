@@ -1,6 +1,7 @@
 import { createSellerFromRequestService } from "../../sellerServices/SellerFormRequestService/sellerFormRequest";
 import { Request, Response } from "express";
 import { z } from "zod";
+import { SellerRequestDataSchema } from "../../validations/sellerRequestData.validation";
 
 export const SellerFromRequestController = async (req: Request, res: Response) => {
     try {
@@ -14,17 +15,25 @@ export const SellerFromRequestController = async (req: Request, res: Response) =
             });
         }
 
-        const requestData = req.body;
-        if (!requestData) {
+        if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({
                 message: "No data provided for seller request"
+            });
+        }
+
+        // Validate request body with Zod
+        const validationResult = SellerRequestDataSchema.safeParse(req.body);
+        if (!validationResult.success) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: validationResult.error.issues
             });
         }
 
         // Get uploaded files from multer
         const files = (req.files as { [fieldname: string]: Express.Multer.File[] }) || {};
 
-        const newSellerRequest = await createSellerFromRequestService(requestData, userId, files);
+        const newSellerRequest = await createSellerFromRequestService(validationResult.data, userId, files);
 
         return res.status(201).json({
             message: "Seller request created successfully",
