@@ -1,7 +1,16 @@
 {
     "watch": [
         "server.ts",
-        "src/"
+        "src/",
+        "controllers/",
+        "routes/",
+        "middlewares/",
+        "models/",
+        "repos/",
+        "AdminServices/",
+        "buyerServices/",
+        "sellerServices/",
+        "validations/"
     ],
     "ext": "ts",
     "exec": "node --loader ts-node/esm server.ts"

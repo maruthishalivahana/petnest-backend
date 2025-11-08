@@ -1,4 +1,4 @@
-import { getAllUsersService } from "../../AdminServices/getAlluserService/getallusers";
+import { getAllUsersService } from "../../../AdminServices/getAlluserService/getallusers";
 import { Request, Response } from "express";
 import { z } from "zod";
 export const getAllUsersController = async (req: Request, res: Response) => {

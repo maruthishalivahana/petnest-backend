@@ -1,6 +1,6 @@
-import { AddBreed } from '../../AdminServices/BreedServices/AddBreed';
+import { AddBreed } from '../../../AdminServices/BreedServices/AddBreed';
 import { Request, Response } from 'express'
-import { BreedSchema } from '../../validations/breed.validation';
+import { BreedSchema } from '../../../validations/breed.validation';
 export const addBreedController = async (req: Request, res: Response) => {
     try {
         const adminid = req.user?.id;

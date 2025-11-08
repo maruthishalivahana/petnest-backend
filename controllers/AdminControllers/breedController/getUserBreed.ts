@@ -1,4 +1,4 @@
-import { getBreed } from "../../repos/breedRrpo";
+import { getBreed } from "../../../repos/breedRrpo";
 import { Request, Response } from "express";
 
 export const getUserBreedController = async (req: Request, res: Response) => {

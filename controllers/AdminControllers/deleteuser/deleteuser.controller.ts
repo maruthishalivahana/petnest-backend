@@ -1,7 +1,8 @@
-import { deleteuserByIdService } from "../../AdminServices/deleteuserService/deleteuser";
+import { deleteuserByIdService } from "../../../AdminServices/deleteuserService/deleteuser";
 import { Request, Response } from "express";
 import { z } from "zod";
 
+// Delete user by ID controller
 export const deleteuserByIdController = async (req: Request, res: Response) => {
     try {
         const adminId = req.user?.id;

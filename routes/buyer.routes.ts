@@ -4,7 +4,7 @@ import upload from "../middlewares/upload";
 
 import { buyerProfileUpdateController } from "../controllers/updateBuyerController/buyerupdate.controller";
 import { getBuyerProfileByIdController } from "../controllers/getBuyerProfile/getBuyerProfile.controller";
-import { getUserBreedController } from "../controllers/breedController/getUserBreed";
+import { getUserBreedController } from "../controllers/AdminControllers/breedController/getUserBreed";
 
 export const buyerRouter = express.Router();
 
