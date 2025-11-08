@@ -4,7 +4,7 @@ import User from "../models/User";
 import jwt from "jsonwebtoken";
 import { generateOtp, hashOtp, verifyOtp } from "../utils/otp";
 import { sendOtpEmail } from "../utils/mailer";
-import { SignupSchema, LoginSchema } from "../validations/authdata.validation";
+import { SignupSchema, LoginSchema, VerifyOtpSchema, ResendOtpSchema } from "../validations/authdata.validation";
 import { SignupData, LoginData } from "../validations/authdata.validation";
 import { zodErrorFormatter } from "../utils/zodError";
 
@@ -79,13 +79,16 @@ export const signUp = async (req: Request, res: Response) => {
 
 export const verifyOtpController = async (req: Request, res: Response) => {
     try {
-        const { email, otp } = req.body;
-
-        if (!email || !otp) {
+        // Validate request body with Zod
+        const validationResult = VerifyOtpSchema.safeParse(req.body);
+        if (!validationResult.success) {
             return res.status(400).json({
-                message: "Email and OTP are required"
+                message: "Validation failed",
+                errors: validationResult.error.issues
             });
         }
+
+        const { email, otp } = validationResult.data;
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -142,13 +145,16 @@ export const verifyOtpController = async (req: Request, res: Response) => {
 
 export const resendOtp = async (req: Request, res: Response) => {
     try {
-        const { email } = req.body;
-
-        if (!email) {
+        // Validate request body with Zod
+        const validationResult = ResendOtpSchema.safeParse(req.body);
+        if (!validationResult.success) {
             return res.status(400).json({
-                message: "Email is required"
+                message: "Validation failed",
+                errors: validationResult.error.issues
             });
         }
+
+        const { email } = validationResult.data;
 
         const user = await User.findOne({ email });
         if (!user) {
