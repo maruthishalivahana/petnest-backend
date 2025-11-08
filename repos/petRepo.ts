@@ -104,3 +104,13 @@ export const getAllpets = async () => {
 
     }
 }
+
+export const deletePetById = async (petId: string) => {
+    try {
+        const deletedPet = await pet.findByIdAndDelete(petId);
+        return deletedPet;
+    } catch (error) {
+        console.error("Error deleting pet by ID:", error);
+        throw new Error("Error deleting pet by ID: " + (error as Error).message);
+    }
+}

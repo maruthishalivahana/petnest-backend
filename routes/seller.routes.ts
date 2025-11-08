@@ -6,6 +6,7 @@ import { handleMulterErrors } from "../middlewares/uploadErrors";
 import seller from "../models/SellerProfile";
 import { addPetController } from '../controllers/SellerController/addpet.controller'
 import { getPetsBySellerController } from '../controllers/SellerController/getpetsbySeller.controller'
+import { deletePetController } from "../controllers/SellerController/Deletepet.controller";
 import { uploadPet } from "../middlewares/upload";
 
 export const sellerRouter = express.Router();
@@ -38,4 +39,10 @@ sellerRouter.get(
     verifyToken,
     requireRole(["seller"]),
     getPetsBySellerController
+);
+sellerRouter.delete(
+    "/pet/:petId",
+    verifyToken,
+    requireRole(["seller"]),
+    deletePetController
 );
