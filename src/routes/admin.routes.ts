@@ -6,7 +6,13 @@ import {
     deleteuserByIdController,
     getUsersByRoleController,
     banUserController,
-    unbanUserController
+    unbanUserController,
+    changeAdStatusController
+} from "../modules/user";
+import {
+    getAdByIdController,
+    deleteAdListingController,
+    getAllAdListingsController
 } from "../modules/user";
 import {
     getAllPendingRequestsController,
@@ -31,6 +37,8 @@ import {
 } from "../modules/pet";
 
 import { getAllAdvertisementsController, getAllPendingAdvertisementsController } from "../modules/user";
+import { createAdListingController } from "../modules/user";
+import { uploadAd } from "@shared/middlewares/upload";
 
 export const adminRouter = express.Router();
 
@@ -199,9 +207,46 @@ adminRouter.get(
     requireRole(['admin']),
     getAllAdvertisementsController
 );
+// admin listing of ad listings with optional filters
+adminRouter.get(
+    '/advertisements/listings',
+    verifyToken,
+    requireRole(['admin']),
+    getAllAdListingsController
+);
+// fetch a specific ad listing
+adminRouter.get(
+    '/advertisements/:adId',
+    verifyToken,
+    requireRole(['admin']),
+    getAdByIdController
+);
 adminRouter.get(
     '/advertisements/requests',
     verifyToken,
     requireRole(['admin']),
     getAllPendingAdvertisementsController
+);
+
+
+adminRouter.post(
+    '/advertisements/listing',
+    verifyToken,
+    requireRole(['admin']),
+    uploadAd.array('images', 5),
+    createAdListingController
+);
+
+adminRouter.patch(
+    '/advertisements/:adId/:status',
+    verifyToken,
+    requireRole(['admin']),
+    changeAdStatusController
+)
+// delete ad listing
+adminRouter.delete(
+    '/advertisements/:adId',
+    verifyToken,
+    requireRole(['admin']),
+    deleteAdListingController
 );
