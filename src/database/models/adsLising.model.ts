@@ -1,4 +1,4 @@
-import type { Schema, Document, model, Model, Types } from "mongoose";
+import { Schema, Document, model, Model, Types } from "mongoose";
 
 export interface IAdListing extends Document {
     title: string;
