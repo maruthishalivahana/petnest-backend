@@ -208,10 +208,10 @@ export const getAllAdvertisementsController = async (req: Request, res: Response
     }
 }
 
-export const getAdvertisementsByStatusController = async (req: Request, res: Response) => {
+export const getAllPendingAdvertisementsController = async (req: Request, res: Response) => {
     try {
         const status = req.params.status;
-        const RequestedAds = await userService.getAdvertisementsByStatus(status);
+        const RequestedAds = await userService.getallPendingAdvertisiments();
         if (!RequestedAds) {
             return res.status(404).json({
                 message: `No advertisements found with status: ${status}`

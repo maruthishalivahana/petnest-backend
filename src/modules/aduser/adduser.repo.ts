@@ -1,7 +1,7 @@
 
 
-import Advertisement from '../../database/models/ads.model'
-import { IAdvertisement } from '../../database/models/ads.model';
+import Advertisement from '../../database/models/adsRequest.model'
+import { IAdvertisement } from '../../database/models/adsRequest.model';
 export class adUserRepository {
 
     async requestAdvisement(adData: Partial<IAdvertisement>) {

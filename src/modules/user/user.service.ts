@@ -91,11 +91,12 @@ export class UserService {
         }
         return ads;
     }
-    async getAdvertisementsByStatus(status: string) {
-        const ads = await this.userRepo.getAdvertisementByStatus(status);
-        if (!ads || ads.length === 0) {
-            throw new Error(`No advertisements found with status: ${status}`);
+    async getallPendingAdvertisiments() {
+        const pendingAds = await this.userRepo.getPendingAdvertisements();
+        if (!pendingAds || pendingAds.length === 0) {
+            throw new Error("No pending advertisements found as of now");
         }
-        return ads;
+        return pendingAds;
     }
+
 }

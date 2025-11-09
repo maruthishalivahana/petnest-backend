@@ -30,7 +30,7 @@ import {
     getAllnotVerifiedPetsController
 } from "../modules/pet";
 
-import { getAllAdvertisementsController, getAdvertisementsByStatusController } from "../modules/user";
+import { getAllAdvertisementsController, getAllPendingAdvertisementsController } from "../modules/user";
 
 export const adminRouter = express.Router();
 
@@ -200,8 +200,8 @@ adminRouter.get(
     getAllAdvertisementsController
 );
 adminRouter.get(
-    '/advertisements/status/:status',
+    '/advertisements/requests',
     verifyToken,
     requireRole(['admin']),
-    getAdvertisementsByStatusController
+    getAllPendingAdvertisementsController
 );
