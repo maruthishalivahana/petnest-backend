@@ -31,7 +31,7 @@ const AdvertisementSchema: Schema<IAdvertisement> = new Schema(
         },
         adSpot: {
             type: String,
-            enum: ['homepageBanner', 'sidebar', 'footer', 'blog_feature'],
+            enum: ['homepageBanner', 'sidebar', 'footer', 'blogFeature'],
             required: true
         },
         message: {
