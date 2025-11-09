@@ -1,6 +1,8 @@
 import User from "../../database/models/user.model";
 import { IUser } from "../../database/models/user.model";
 import Advertisement from "../../database/models/adsRequest.model";
+import { AdListing } from "@database/models/adsLising.model";
+import { IAdListing } from "@database/models/adsLising.model";
 
 export class UserRepository {
     async findAllUsers() {
@@ -48,21 +50,55 @@ export class UserRepository {
         return ads;
     }
 
-    async getPendingAdvertisements() {
+    async findByIsActive() {
         const ads = await Advertisement.find({ isActive: false });
         return ads;
     }
 
-    async getAdvertisementById(adId: string) {
-        const ad = await Advertisement.findById(adId);
+    async findById(adid: string) {
+        const ad = await Advertisement.findById(adid);
         return ad;
     }
-    async updateAdvertisementStatus(adId: string, status: 'pending' | 'active' | 'paused' | 'expired' | 'rejected') {
-        const ad = await Advertisement.findByIdAndUpdate(
-            adId,
-            { status },
+    async createAdListing(adData: Partial<IAdListing>) {
+        const newAdListing = new AdListing(adData);
+        return await newAdListing.save();
+    }
+    async findActiveAdSpot(adSpot: string) {
+        const activeAdInSpot = await AdListing.findOne({
+            adSpot: adSpot,
+            status: "active"
+        });
+        return activeAdInSpot;
+    }
+
+    async findAllActiveAdListing() {
+        const adListings = await AdListing.find({ status: "active" });
+        return adListings;
+    }
+    async updateAdListingStatus(adListingId: string, status: string) {
+        return await AdListing.findByIdAndUpdate(
+            adListingId,
+            { status: status },
             { new: true }
         );
-        return ad;
     }
+    async findByid(adListingId: string) {
+        const adListing = await AdListing.findById(adListingId);
+        return adListing;
+    }
+    async updateAdListing(adListingId: string, updateData: Partial<IAdListing>) {
+        return await AdListing.findByIdAndUpdate(adListingId, updateData, { new: true });
+    }
+
+    async deleteAdListing(adListingId: string) {
+        return await AdListing.findByIdAndDelete(adListingId);
+    }
+
+    async findAllAdListings(filter: Partial<IAdListing> = {}, options: { skip?: number; limit?: number } = {}) {
+        const q = AdListing.find(filter as any);
+        if (options.skip) q.skip(options.skip);
+        if (options.limit) q.limit(options.limit);
+        return await q.exec();
+    }
+
 }

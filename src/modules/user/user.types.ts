@@ -1,4 +1,5 @@
 // User module types
+
 export interface UserResponse {
     message: string;
     user?: any;

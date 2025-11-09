@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { BuyerService } from "./buyer.service";
 import { z } from "zod";
 import { BuyerProfileSchema } from "../../validations/buyer.validation";
+import { get } from "http";
 
 const buyerService = new BuyerService();
 
@@ -137,3 +138,156 @@ export const buyerProfileUpdateController = async (req: Request, res: Response) 
         });
     }
 };
+
+export const addToWishlistController = async (req: Request, res: Response) => {
+    try {
+        const buyerId = req.user?.id;
+        const { petId } = req.params;
+        if (!buyerId) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+        if (!petId) {
+            return res.status(400).json({ message: "Pet ID is required" });
+        }
+        const result = await buyerService.addToWishlist(buyerId, petId);
+        return res.status(200).json({
+            message: "Pet added to wishlist successfully",
+            wishlistItem: result
+        });
+
+    } catch (error) {
+        console.error("Add to wishlist error:", error);
+
+        const errorMessage = (error as Error).message;
+
+        if (errorMessage === "Pet not found") {
+            return res.status(404).json({
+                message: errorMessage
+            });
+        }
+
+        if (errorMessage === "Pet is already in wishlist") {
+            return res.status(400).json({
+                message: errorMessage
+            });
+        }
+
+        if (errorMessage === "Access denied") {
+            return res.status(403).json({
+                message: errorMessage
+            });
+        }
+
+        return res.status(500).json({
+            message: "Oops! Something went wrong!",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: errorMessage
+            })
+        });
+    }
+
+
+
+}
+
+export const getAllPetsController = async (req: Request, res: Response) => {
+    try {
+        const pets = await buyerService.getAllPets();
+        if (!pets || pets.length === 0) {
+            return res.status(404).json({
+                message: "No pets found"
+            });
+        }
+        return res.status(200).json({
+            message: "Pets retrieved successfully",
+            pets: pets
+        });
+    } catch (error) {
+        console.error("Get all pets error:", error);
+        return res.status(500).json({
+            message: "Oops! Something went wrong!",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: (error as Error).message
+            })
+        });
+    }
+};
+export const removefromWishlistController = async (req: Request, res: Response) => {
+    try {
+        const buyerId = req.user?.id;
+        const petId = req.params.petId;
+        if (!buyerId) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+        if (!petId) {
+            return res.status(400).json({ message: "Pet ID is required" });
+        }
+        const result = await buyerService.removeFromWishlist(buyerId, petId);
+        return res.status(200).json({
+            message: "Pet removed from wishlist successfully",
+            wishlistItem: result
+        });
+    } catch (error) {
+        console.error("Remove from wishlist error:", error);
+        const errorMessage = (error as Error).message;
+        res.status(500).json({
+            message: "Oops! Something went wrong!",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: errorMessage
+            })
+        });
+
+    }
+}
+
+export const getWishlistController = async (req: Request, res: Response) => {
+    try {
+        const buyerId = req.user?.id;
+        if (!buyerId) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+        const wishlist = await buyerService.getWishlist(buyerId);
+        return res.status(200).json({
+            message: "Wishlist retrieved successfully",
+            wishlist: wishlist
+        });
+
+    } catch (error) {
+        console.error("Get wishlist error:", error);
+        const errorMessage = (error as Error).message;
+        res.status(500).json({
+            message: "Oops! Something went wrong!",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: errorMessage
+            })
+        });
+
+    }
+}
+
+export const getpetById = async (req: Request, res: Response) => {
+    try {
+        const buyerId = req.user?.id
+        if (!buyerId) {
+            res.status(403).json({
+                message: "Access denied"
+            })
+        }
+        const { petid } = req.params
+        if (!petid) {
+            res.status(400).json({
+                message: "pet id required"
+            })
+        }
+        const pet = await buyerService.getByIdPets(petid)
+        return pet
+
+    } catch (error: any) {
+        console.error("somthing went wrong")
+        res.status(500).json({
+            message: "oops! somthing went wrong", error
+        })
+
+    }
+
+}

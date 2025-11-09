@@ -1,5 +1,7 @@
 import { UserRepository } from "./user.repo";
 import { IUser } from "../../database/models/user.model";
+import { IAdListing } from "@database/models/adsLising.model";
+import { AdListingSchema } from "@validations/adListing.validation";
 
 export class UserService {
     private userRepo: UserRepository;
@@ -92,11 +94,120 @@ export class UserService {
         return ads;
     }
     async getallPendingAdvertisiments() {
-        const pendingAds = await this.userRepo.getPendingAdvertisements();
+        const pendingAds = await this.userRepo.findByIsActive();
         if (!pendingAds || pendingAds.length === 0) {
             throw new Error("No pending advertisements found as of now");
         }
         return pendingAds;
+    }
+
+    async createAdListing(adData: Partial<IAdListing> & { adRequestId?: string }) {
+        const parseResult = AdListingSchema.safeParse(adData);
+        if (!parseResult.success) {
+            throw parseResult.error;
+        }
+
+        const adRequestIdStr = String(adData.adRequestId || (adData as any).advertisementId || "").trim();
+        let request: (import("mongoose").Document & { isActive?: boolean; _id?: import("mongoose").Types.ObjectId; }) | null = null;
+        if (adRequestIdStr) {
+            request = await this.userRepo.findById(adRequestIdStr) as (import("mongoose").Document & { isActive?: boolean; _id?: import("mongoose").Types.ObjectId; }) | null;
+            if (!request) {
+                throw new Error("Advertisement request not found");
+            }
+        }
+
+        const { title, description, images, adSpot, startDate, endDate } = parseResult.data as unknown as Partial<IAdListing> & Record<string, any>;
+
+        if (!title || !images || !adSpot || !startDate || !endDate) {
+            throw new Error("Missing required advertisement fields.");
+        }
+
+        const activeSpot = await this.userRepo.findActiveAdSpot(adSpot);
+        // If an active ad exists in the spot, it is occupied and we should reject
+        if (activeSpot) {
+            throw new Error(`Ad spot "${adSpot}" is already occupied by an active advertisement.`);
+        }
+
+        // If an AdvertisementRequest was provided, mark it active and attach its id
+        let advertisementIdToSave: any = undefined;
+        if (request) {
+            (request as any).isActive = true;
+            await (request as any).save();
+            advertisementIdToSave = request._id;
+        }
+
+        const newAdListing = await this.userRepo.createAdListing({
+            title,
+            images,
+            description,
+            adSpot,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            status: "active",
+            adminId: (adData as any).adminId || (adData as any).AdminId || undefined,
+            advertisementId: advertisementIdToSave
+        });
+
+        return {
+            message: "Ad listing created",
+            adListing: newAdListing.toObject()
+        };
+    }
+
+    private static readonly ALLOWED_STATUS = ["active", "paused", "inactive", "expired", "rejected"] as const;
+
+    async changeAdStatus(adListingId: string, status: string, adminId: string) {
+        const allowed = UserService.ALLOWED_STATUS as readonly string[];
+        if (!allowed.includes(status)) {
+            throw new Error("Invalid status update request");
+        }
+
+        // Use the user repository which contains ad listing methods
+        const ad = await this.userRepo.findByid(adListingId);
+        if (!ad) throw new Error("Advertisement not found");
+
+        // Business rule: cannot activate an already expired ad
+        const adEnd = (ad as any).endDate ? new Date((ad as any).endDate) : null;
+        if (status === "active" && adEnd && new Date() > adEnd) {
+            throw new Error("Cannot activate ad after it has expired");
+        }
+
+        // If activating, ensure the adSpot is not occupied by a different active ad
+        if (status === "active") {
+            const occupied = await this.userRepo.findActiveAdSpot((ad as any).adSpot);
+            if (occupied && String((occupied as any)._id) !== String((ad as any)._id)) {
+                throw new Error(`Ad spot "${(ad as any).adSpot}" is already occupied by another active advertisement.`);
+            }
+        }
+
+        const updated = await this.userRepo.updateAdListing(adListingId, { status, adminId, updatedAt: new Date() } as any);
+        return updated;
+    }
+
+
+    async getAdById(adListingId: string) {
+        const ad = await this.userRepo.findByid(adListingId);
+        if (!ad) throw new Error("Advertisement not found");
+        return ad;
+    }
+
+    async getAllAdListings(filter: Partial<IAdListing> = {}, options: { skip?: number; limit?: number } = {}) {
+        const now = new Date();
+        if (filter && (filter as any).status === "active") {
+            const effectiveFilter: any = {
+                ...(filter as any),
+                startDate: { $lte: now },
+                endDate: { $gt: now }
+            };
+            return await this.userRepo.findAllAdListings(effectiveFilter, options);
+        }
+        return await this.userRepo.findAllAdListings(filter, options);
+    }
+
+    async deleteAdListing(adListingId: string) {
+        const deleted = await this.userRepo.deleteAdListing(adListingId);
+        if (!deleted) throw new Error("Advertisement not found or already deleted");
+        return deleted;
     }
 
 }

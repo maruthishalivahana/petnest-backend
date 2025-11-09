@@ -77,6 +77,28 @@ export const uploadPet = multer({
     }
 })
 
+const adStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: "petnest/ads", // folder name in cloudinary
+        allowed_formats: ["jpg", "jpeg", "png", "webp"],
+        resource_type: "image",
+    } as any
+});
+
+export const uploadAd = multer({
+    storage: adStorage,
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB file size limit
+    fileFilter: (req, file, cb: FileFilterCallback) => {
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+        if (allowedMimeTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error("Invalid file type. Only JPEG, PNG, and WEBP are allowed."));
+        }
+    }
+})
+
 
 
 export default upload;

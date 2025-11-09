@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
+import { ca } from "zod/v4/locales";
 
 const userService = new UserService();
 
@@ -24,6 +25,69 @@ export const getAllUsersController = async (req: Request, res: Response) => {
             message: "Failed to fetch users",
             error: error.message
         });
+    }
+};
+
+export const getAllAdListingsController = async (req: Request, res: Response) => {
+    try {
+        // Admin can pass filters; default behavior returns all listings matching filters
+        const status = req.query.status as string | undefined;
+        const adSpot = req.query.adSpot as string | undefined;
+        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
+        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+
+        const filter: any = {};
+        if (status) filter.status = status;
+        if (adSpot) filter.adSpot = adSpot;
+
+        const ads = await userService.getAllAdListings(filter, { skip, limit });
+        return res.status(200).json({ message: 'Ad listings fetched', advertisements: ads });
+    } catch (error) {
+        console.error('Error fetching ad listings (admin):', error);
+        return res.status(500).json({ message: 'Failed to fetch ad listings', error: (error as Error).message });
+    }
+};
+
+export const getAdByIdController = async (req: Request, res: Response) => {
+    try {
+        const adId = req.params.adId;
+        if (!adId) return res.status(400).json({ message: "Ad ID is required" });
+        const ad = await userService.getAdById(adId);
+        return res.status(200).json({ message: "Advertisement fetched", advertisement: ad });
+    } catch (error) {
+        console.error("Error fetching advertisement:", error);
+        return res.status(500).json({ message: "Failed to fetch advertisement", error: (error as Error).message });
+    }
+};
+
+export const deleteAdListingController = async (req: Request, res: Response) => {
+    try {
+        const adminid = req.user?.id;
+        if (!adminid) return res.status(403).json({ message: "Access denied" });
+        const adId = req.params.adId;
+        if (!adId) return res.status(400).json({ message: "Ad ID is required" });
+        const deleted = await userService.deleteAdListing(adId);
+        return res.status(200).json({ message: "Advertisement deleted", deleted });
+    } catch (error) {
+        console.error("Error deleting advertisement:", error);
+        return res.status(500).json({ message: "Failed to delete advertisement", error: (error as Error).message });
+    }
+};
+
+
+export const getPublicAdByIdController = async (req: Request, res: Response) => {
+    try {
+        const adId = req.params.adId;
+        if (!adId) return res.status(400).json({ message: 'Ad ID is required' });
+        const ad = await userService.getAdById(adId);
+        // Only allow public access if ad is active (or keep as-is if admins call)
+        if (!ad || (ad.status && ad.status !== 'active')) {
+            return res.status(404).json({ message: 'Advertisement not found' });
+        }
+        return res.status(200).json({ message: 'Advertisement fetched', advertisement: ad });
+    } catch (error) {
+        console.error('Error fetching public advertisement:', error);
+        return res.status(500).json({ message: 'Failed to fetch advertisement', error: (error as Error).message });
     }
 };
 
@@ -231,5 +295,103 @@ export const getAllPendingAdvertisementsController = async (req: Request, res: R
         });
 
 
+    }
+
+};
+
+
+export const createAdListingController = async (req: Request, res: Response) => {
+    try {
+        const adminid = req.user?.id;
+        if (!adminid) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+        const adData = req.body
+        // normalize adSpot (accept common variants and case-insensitive values)
+        const rawAdSpot = (req.body.adSpot ?? req.body.AdSpot ?? "").toString();
+        const normalizeAdSpot = (val: string) => {
+            if (!val) return "";
+            const key = val.toLowerCase().replace(/[^a-z]/g, "");
+            switch (key) {
+                case "homepagebanner":
+                    return "homepageBanner";
+                case "sidebar":
+                    return "sidebar";
+                case "footer":
+                    return "footer";
+                case "blogfeature":
+                    return "blogFeature";
+                default:
+                    return "";
+            }
+        }
+        const canonicalAdSpot = normalizeAdSpot(rawAdSpot);
+        if (rawAdSpot && !canonicalAdSpot) {
+            return res.status(400).json({
+                message: "Invalid adSpot. Allowed values: homepageBanner, sidebar, footer, blogFeature",
+                provided: rawAdSpot
+            });
+        }
+        const imageUrls = req.files as Express.Multer.File[];
+        if (!imageUrls || imageUrls.length === 0) {
+            return res.status(400).json({
+                message: "At least one image is required"
+            });
+        }
+        const imagePaths = imageUrls.map(file => file.path);
+        const adListingData = {
+            ...adData,
+            images: imagePaths,
+            adminId: adminid,
+            adSpot: canonicalAdSpot || adData.adSpot || adData.AdSpot
+        };
+        const newAdListing = await userService.createAdListing(adListingData);
+        return res.status(201).json({
+            message: "Advertisement listing created successfully",
+            adListing: { ...newAdListing.adListing }
+        });
+    } catch (error) {
+        console.error("Error creating advertisement listing:", error);
+
+        return res.status(500).json({
+            message: "Failed to create advertisement listing",
+            error: (error as Error).message
+        });
+    }
+}
+
+export const changeAdStatusController = async (req: Request, res: Response) => {
+    try {
+        const adminid = req.user?.id;
+        if (!adminid) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+        const adId = req.params.adId;
+        // Accept status either from URL param or request body for flexibility
+        const status = req.params.status;
+
+        if (!adId || !status) {
+            return res.status(400).json({
+                message: "Ad ID and status are required"
+            });
+        }
+
+        const result = await userService.changeAdStatus(adId, status, adminid);
+        return res.status(200).json({
+            message: "Advertisement status updated successfully",
+            updatedAd: result
+        });
+    } catch (error) {
+
+        console.error("Error changing advertisement status:", error);
+
+        return res.status(500).json({
+            message: "Failed to change advertisement status",
+            error: (error as Error).message
+        });
     }
 }

@@ -1,4 +1,6 @@
 import User from "../../database/models/user.model";
+import Pet from "@database/models/pet.model";
+import Wishlist from "@database/models/wishlist.model";
 
 export class BuyerRepository {
     /**
@@ -17,5 +19,26 @@ export class BuyerRepository {
             { $set: updateData },
             { new: true }
         );
+    }
+    async findAllPets() {
+        return await Pet.find({});
+    }
+
+    async addToWishlist(buyerId: string, petId: string) {
+        const wishlistItem = new Wishlist({ buyerId, petId });
+        return await wishlistItem.save();
+    }
+
+    async findOne(buyerId: string, petId: string) {
+        return await Wishlist.findOne({ buyerId, petId });
+    }
+    async findById(id: string) {
+        return await Pet.findById(id);
+    }
+    async removeFromWishlist(buyerId: string, petId: string) {
+        return await Wishlist.findOneAndDelete({ buyerId, petId });
+    }
+    async getWishList(buyerId: string) {
+        return await Wishlist.find({ buyerId }).populate("petId", "name price gender images isVerified status");
     }
 }

@@ -2,42 +2,46 @@ import { Schema, Document, model, Model, Types } from "mongoose";
 
 export interface IAdListing extends Document {
     title: string;
-    decription?: string;
-    AdminId: Types.ObjectId;
-    AdvertisementId: Types.ObjectId;
-    Status: 'active' | 'inactive' | 'paused' | 'rejected' | 'expired';
-    AdSpot: 'homepageBanner' | 'sidebar' | 'footer' | 'blogFeature';
+    images: string[];
+    description?: string;
+    adminId: Types.ObjectId;
+    advertisementId: Types.ObjectId;
+    status: 'active' | 'inactive' | 'paused' | 'rejected' | 'expired';
+    adSpot: 'homepageBanner' | 'sidebar' | 'footer' | 'blogFeature';
     startDate: Date;
     endDate: Date;
     createdAt: Date;
     updatedAt: Date;
-    sheduledAt?: Date;
+    scheduledAt?: Date;
 }
 
 const AdListingSchema = new Schema<IAdListing>({
+    images: {
+        type: [String],
+        required: true
+    },
     title: {
         type: String,
         required: true
     },
-    decription: {
+    description: {
         type: String
     },
-    AdminId: {
+    adminId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    AdvertisementId: {
+    advertisementId: {
         type: Schema.Types.ObjectId,
-        ref: 'AdvertisementRequests',
-        required: true
+        ref: 'AdvertisementRequests'
     },
-    Status: {
+    status: {
         type: String,
         enum: ['active', 'inactive', 'paused', 'rejected', 'expired'],
         default: 'inactive'
     },
-    AdSpot: {
+    adSpot: {
         type: String,
         enum: ['homepageBanner', 'sidebar', 'footer', 'blogFeature'],
         required: true
@@ -50,7 +54,7 @@ const AdListingSchema = new Schema<IAdListing>({
         type: Date,
         required: true
     },
-    sheduledAt: {
+    scheduledAt: {
         type: Date
     }
 },
