@@ -1,5 +1,6 @@
 import { adUserRepository } from "./adduser.repo"
-
+import { IAdvertisement } from "../../database/models/ads.model";
+import { AdRequestSchema } from "@validations/ad.validation";
 
 export class AdUserService {
     private adUserRepo: adUserRepository;
@@ -7,13 +8,17 @@ export class AdUserService {
         this.adUserRepo = new adUserRepository();
     }
 
-    async requestAdvisement(adData: Partial<any>) {
+    async requestAdvisement(adData: Partial<IAdvertisement>) {
         try {
             if (!adData) {
                 throw new Error("Advertisement data is required");
             }
+            const adSafeData = AdRequestSchema.safeParse(adData);
+            if (!adSafeData.success) {
+                throw adSafeData.error;
+            }
 
-            return this.adUserRepo.requestAdvisement(adData);
+            return this.adUserRepo.requestAdvisement(adSafeData.data);
 
 
         } catch (error: any) {

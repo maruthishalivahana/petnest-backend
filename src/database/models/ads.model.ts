@@ -5,7 +5,7 @@ export interface IAdvertisement extends Document {
     brandName: string;
     contactEmail?: string;
     contactNumber?: string;
-    adSpot: 'homepage_banner' | 'sidebar' | 'footer' | 'blog_feature';
+    adSpot: 'homepageBanner' | 'sidebar' | 'footer' | 'blogFeature';
     message?: string;
     mediaUrl?: string;
     status: 'pending' | 'active' | 'paused' | 'expired' | 'rejected';
@@ -31,7 +31,7 @@ const AdvertisementSchema: Schema<IAdvertisement> = new Schema(
         },
         adSpot: {
             type: String,
-            enum: ['homepage_banner', 'sidebar', 'footer', 'blog_feature'],
+            enum: ['homepageBanner', 'sidebar', 'footer', 'blog_feature'],
             required: true
         },
         message: {
