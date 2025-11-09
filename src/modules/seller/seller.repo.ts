@@ -78,7 +78,7 @@ export class SellerRepository {
             }
 
             const userObjectId = new mongoose.Types.ObjectId(userId);
-            return await Seller.findOne({ userId: userObjectId });
+            return await Seller.findOne({ userId: userObjectId }).populate('userId', 'isBanned');
         } catch (error) {
             console.error("Error in findSellerByUserIdSimple:", error);
             throw new Error("Failed to get seller by user ID");
