@@ -3,14 +3,17 @@ import { PetType, PetValidationSchema } from "../../validations/pet.validation";
 import { BreedRepository } from "../breed/breed.repo";
 import { IPet } from "../../database/models/pet.model";
 import Seller from "../../database/models/seller.model";
+import { SellerRepository } from "../seller/seller.repo";
 
 export class PetService {
     private petRepo: PetRepository;
     private breedRepo: BreedRepository;
+    private sellerRepo: SellerRepository;
 
     constructor() {
         this.petRepo = new PetRepository();
         this.breedRepo = new BreedRepository();
+        this.sellerRepo = new SellerRepository();
     }
 
     async addPet(petData: PetType & { userId: string }): Promise<IPet> {
@@ -60,6 +63,10 @@ export class PetService {
                 throw new Error("Your seller account has been suspended. You cannot add pets at this time.");
             default:
                 throw new Error("Invalid seller account status. Please contact support.");
+        }
+        const bannedSeller = await this.sellerRepo.findSellerByUserIdSimple(petData.userId);
+        if (bannedSeller?.userId && (bannedSeller.userId as any).isBanned) {
+            throw new Error("Your seller account has been banned. You cannot add pets.");
         }
 
         // Validate images
