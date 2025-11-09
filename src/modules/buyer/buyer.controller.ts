@@ -230,7 +230,7 @@ export const removefromWishlistController = async (req: Request, res: Response) 
     } catch (error) {
         console.error("Remove from wishlist error:", error);
         const errorMessage = (error as Error).message;
-        res.status(500).json({
+        return res.status(500).json({
             message: "Oops! Something went wrong!",
             ...(process.env.NODE_ENV === 'development' && {
                 error: errorMessage
@@ -255,7 +255,7 @@ export const getWishlistController = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Get wishlist error:", error);
         const errorMessage = (error as Error).message;
-        res.status(500).json({
+        return res.status(500).json({
             message: "Oops! Something went wrong!",
             ...(process.env.NODE_ENV === 'development' && {
                 error: errorMessage
@@ -269,13 +269,13 @@ export const getpetById = async (req: Request, res: Response) => {
     try {
         const buyerId = req.user?.id
         if (!buyerId) {
-            res.status(403).json({
+            return res.status(403).json({
                 message: "Access denied"
             })
         }
         const { petid } = req.params
         if (!petid) {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "pet id required"
             })
         }
@@ -284,7 +284,7 @@ export const getpetById = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         console.error("somthing went wrong")
-        res.status(500).json({
+        return res.status(500).json({
             message: "oops! somthing went wrong", error
         })
 
