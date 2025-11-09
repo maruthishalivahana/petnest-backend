@@ -8,14 +8,10 @@ export interface IAdvertisement extends Document {
     adSpot: 'homepageBanner' | 'sidebar' | 'footer' | 'blogFeature';
     message?: string;
     mediaUrl?: string;
-    status: 'pending' | 'active' | 'paused' | 'expired' | 'rejected';
-    startDate?: Date;
-    endDate?: Date;
-    createdByAdminId?: Types.ObjectId;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
-
 
 const AdvertisementSchema: Schema<IAdvertisement> = new Schema(
     {
@@ -34,31 +30,20 @@ const AdvertisementSchema: Schema<IAdvertisement> = new Schema(
             enum: ['homepageBanner', 'sidebar', 'footer', 'blogFeature'],
             required: true
         },
+        isActive: {
+            type: Boolean,
+            default: false
+        },
         message: {
             type: String
         },
         mediaUrl: {
             type: String
-        },
-        status: {
-            type: String,
-            enum: ['pending', 'active', 'paused', 'expired', 'rejected'],
-            default: 'pending'
-        },
-        startDate: {
-            type: Date
-        },
-        endDate: {
-            type: Date
-        },
-        createdByAdminId: {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
         }
     },
     { timestamps: true }
 );
 
-const Advertisement: Model<IAdvertisement> = model<IAdvertisement>('Advertisement', AdvertisementSchema);
+const Advertisement: Model<IAdvertisement> = model<IAdvertisement>('AdvertisementRequests', AdvertisementSchema);
 
 export default Advertisement;

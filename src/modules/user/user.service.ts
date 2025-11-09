@@ -83,4 +83,20 @@ export class UserService {
             user: user.toObject()
         };
     }
+
+    async getAllAdvertisements() {
+        const ads = await this.userRepo.getAllAdvertisements();
+        if (!ads || ads.length === 0) {
+            throw new Error("No advertisements found");
+        }
+        return ads;
+    }
+    async getallPendingAdvertisiments() {
+        const pendingAds = await this.userRepo.getPendingAdvertisements();
+        if (!pendingAds || pendingAds.length === 0) {
+            throw new Error("No pending advertisements found as of now");
+        }
+        return pendingAds;
+    }
+
 }

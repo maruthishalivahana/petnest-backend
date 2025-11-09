@@ -1,5 +1,5 @@
 import { adUserRepository } from "./adduser.repo"
-import { IAdvertisement } from "../../database/models/ads.model";
+import { IAdvertisement } from "../../database/models/adsRequest.model";
 import { AdRequestSchema } from "@validations/ad.validation";
 
 export class AdUserService {

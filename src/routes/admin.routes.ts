@@ -30,6 +30,8 @@ import {
     getAllnotVerifiedPetsController
 } from "../modules/pet";
 
+import { getAllAdvertisementsController, getAllPendingAdvertisementsController } from "../modules/user";
+
 export const adminRouter = express.Router();
 
 // ============= USER MANAGEMENT =============
@@ -187,4 +189,19 @@ adminRouter.patch(
     verifyToken,
     requireRole(['admin']),
     updatePetStatusController
+);
+
+
+// ============= ADVERTISEMENT MANAGEMENT =============
+adminRouter.get(
+    '/advertisements',
+    verifyToken,
+    requireRole(['admin']),
+    getAllAdvertisementsController
+);
+adminRouter.get(
+    '/advertisements/requests',
+    verifyToken,
+    requireRole(['admin']),
+    getAllPendingAdvertisementsController
 );
