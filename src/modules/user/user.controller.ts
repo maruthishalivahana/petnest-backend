@@ -28,6 +28,26 @@ export const getAllUsersController = async (req: Request, res: Response) => {
     }
 };
 
+export const getAllAdListingsController = async (req: Request, res: Response) => {
+    try {
+        // Admin can pass filters; default behavior returns all listings matching filters
+        const status = req.query.status as string | undefined;
+        const adSpot = req.query.adSpot as string | undefined;
+        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
+        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+
+        const filter: any = {};
+        if (status) filter.status = status;
+        if (adSpot) filter.adSpot = adSpot;
+
+        const ads = await userService.getAllAdListings(filter, { skip, limit });
+        return res.status(200).json({ message: 'Ad listings fetched', advertisements: ads });
+    } catch (error) {
+        console.error('Error fetching ad listings (admin):', error);
+        return res.status(500).json({ message: 'Failed to fetch ad listings', error: (error as Error).message });
+    }
+};
+
 export const getAdByIdController = async (req: Request, res: Response) => {
     try {
         const adId = req.params.adId;
@@ -54,45 +74,6 @@ export const deleteAdListingController = async (req: Request, res: Response) => 
     }
 };
 
-export const getAllAdListingsController = async (req: Request, res: Response) => {
-    try {
-        // optional filters
-        const status = req.query.status as string | undefined;
-        const adSpot = req.query.adSpot as string | undefined;
-        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
-        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-
-        const filter: any = {};
-        if (status) filter.status = status;
-        if (adSpot) filter.adSpot = adSpot;
-
-        const ads = await userService.getAllAdListings(filter, { skip, limit });
-        return res.status(200).json({ message: "Ad listings fetched", advertisements: ads });
-    } catch (error) {
-        console.error("Error fetching ad listings:", error);
-        return res.status(500).json({ message: "Failed to fetch ad listings", error: (error as Error).message });
-    }
-};
-
-// Public endpoints for frontend (no auth)
-export const getPublicAdsController = async (req: Request, res: Response) => {
-    try {
-        // default to active ads for public listing
-        const status = (req.query.status as string) || 'active';
-        const adSpot = req.query.adSpot as string | undefined;
-        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
-        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-
-        const filter: any = { status };
-        if (adSpot) filter.adSpot = adSpot;
-
-        const ads = await userService.getAllAdListings(filter, { skip, limit });
-        return res.status(200).json({ message: 'Public ad listings fetched', advertisements: ads });
-    } catch (error) {
-        console.error('Error fetching public ad listings:', error);
-        return res.status(500).json({ message: 'Failed to fetch public ad listings', error: (error as Error).message });
-    }
-};
 
 export const getPublicAdByIdController = async (req: Request, res: Response) => {
     try {
@@ -391,7 +372,7 @@ export const changeAdStatusController = async (req: Request, res: Response) => {
         }
         const adId = req.params.adId;
         // Accept status either from URL param or request body for flexibility
-        const status = (req.params.status as string) || (req.body && req.body.status);
+        const status = req.params.status;
 
         if (!adId || !status) {
             return res.status(400).json({

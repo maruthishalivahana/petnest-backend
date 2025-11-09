@@ -12,7 +12,8 @@ import {
 import {
     getAdByIdController,
     deleteAdListingController,
-    getAllAdListingsController
+    getAllAdListingsController,
+
 } from "../modules/user";
 import {
     getAllPendingRequestsController,
@@ -35,7 +36,6 @@ import {
     updatePetStatusController,
     getAllnotVerifiedPetsController
 } from "../modules/pet";
-
 import { getAllAdvertisementsController, getAllPendingAdvertisementsController } from "../modules/user";
 import { createAdListingController } from "../modules/user";
 import { uploadAd } from "@shared/middlewares/upload";
@@ -209,23 +209,23 @@ adminRouter.get(
 );
 // admin listing of ad listings with optional filters
 adminRouter.get(
+    '/advertisements/requests',
+    verifyToken,
+    requireRole(['admin']),
+    getAllPendingAdvertisementsController
+);
+adminRouter.get(
     '/advertisements/listings',
     verifyToken,
     requireRole(['admin']),
     getAllAdListingsController
 );
-// fetch a specific ad listing
+// fetch a specific ad listing (must be after static routes)
 adminRouter.get(
     '/advertisements/:adId',
     verifyToken,
     requireRole(['admin']),
     getAdByIdController
-);
-adminRouter.get(
-    '/advertisements/requests',
-    verifyToken,
-    requireRole(['admin']),
-    getAllPendingAdvertisementsController
 );
 
 

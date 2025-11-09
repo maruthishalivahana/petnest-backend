@@ -184,44 +184,24 @@ export class UserService {
         return updated;
     }
 
-    // helper: expire ad if endDate passed
-    private async expireIfNeeded(ad: any) {
-        if (!ad) return null;
-        try {
-            const currentStatus = (ad as any).status;
-            const end = (ad as any).endDate ? new Date((ad as any).endDate) : null;
-            if (end && currentStatus !== "expired" && new Date() > end) {
-                // mark expired
-                const updated = await this.userRepo.updateAdListing(ad._id?.toString?.() || (ad as any).id, { status: "expired" } as any);
-                return updated;
-            }
-            return ad;
-        } catch (err) {
-            // swallow and return original ad
-            return ad;
-        }
-    }
 
     async getAdById(adListingId: string) {
         const ad = await this.userRepo.findByid(adListingId);
         if (!ad) throw new Error("Advertisement not found");
-        const maybeUpdated = await this.expireIfNeeded(ad);
-        return maybeUpdated;
+        return ad;
     }
 
     async getAllAdListings(filter: Partial<IAdListing> = {}, options: { skip?: number; limit?: number } = {}) {
-        const ads = await this.userRepo.findAllAdListings(filter, options);
-        // expire any outdated ads
-        const results = [] as any[];
-        for (const a of ads) {
-            // expireIfNeeded will update in DB if required and return current doc
-            // if it updated, push updated doc, otherwise original
-            // make best-effort without refetching whole collection
-            // eslint-disable-next-line no-await-in-loop
-            const updated = await this.expireIfNeeded(a);
-            results.push(updated);
+        const now = new Date();
+        if (filter && (filter as any).status === "active") {
+            const effectiveFilter: any = {
+                ...(filter as any),
+                startDate: { $lte: now },
+                endDate: { $gt: now }
+            };
+            return await this.userRepo.findAllAdListings(effectiveFilter, options);
         }
-        return results;
+        return await this.userRepo.findAllAdListings(filter, options);
     }
 
     async deleteAdListing(adListingId: string) {

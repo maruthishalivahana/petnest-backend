@@ -6,6 +6,15 @@ import {
     getBuyerProfileByIdController
 } from "../modules/buyer";
 import { getUserBreedController } from "../modules/breed";
+import {
+    addToWishlistController,
+    getAllPetsController,
+    getpetById,
+    getWishlistController,
+    removefromWishlistController
+} from "../modules/buyer/buyer.controller";
+
+
 
 export const buyerRouter = express.Router();
 
@@ -35,3 +44,45 @@ buyerRouter.get(
     requireRole(['buyer']),
     getUserBreedController
 );
+
+
+// ============= WISHLIST MANAGEMENT =============
+// Add pet to wishlist
+
+buyerRouter.get(
+    '/wishlist/',
+    verifyToken,
+    requireRole(['buyer']),
+    getWishlistController
+)
+buyerRouter.post(
+    '/wishlist/:petId',
+    verifyToken,
+    requireRole(['buyer']),
+    addToWishlistController
+);
+
+buyerRouter.delete(
+    '/wishlist/:petId',
+    verifyToken,
+    requireRole(['buyer']),
+    removefromWishlistController
+);
+
+// ============= PET BROWSING =============
+// Get all pets
+buyerRouter.get(
+    '/pets',
+    verifyToken,
+    requireRole(['buyer']),
+    getAllPetsController
+);
+buyerRouter.get(
+    '/pets/:petid',
+    verifyToken,
+    requireRole(['buyer']),
+    getpetById
+);
+
+
+
