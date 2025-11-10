@@ -101,6 +101,26 @@ export class UserService {
         return pendingAds;
     }
 
+    async updateAdvertisementStatus(adId: string, isApproved: boolean) {
+        const updatedAd = await this.userRepo.updateAdvertisementStatus(adId, isApproved);
+        if (!updatedAd) {
+            throw new Error("Advertisement not found or could not be updated");
+        }
+        return {
+            message: "Advertisement status updated successfully",
+            advertisement: updatedAd?.toObject()
+        };
+    }
+
+    async getAllApprovedAdvertisements() {
+
+        const ads = await this.userRepo.getAllApprovedAdvertisements();
+        if (!ads || ads.length === 0) {
+            throw new Error("No approved advertisements found");
+        }
+        return ads;
+    }
+
     async createAdListing(adData: Partial<IAdListing> & { adRequestId?: string }) {
         const parseResult = AdListingSchema.safeParse(adData);
         if (!parseResult.success) {
@@ -191,17 +211,25 @@ export class UserService {
         return ad;
     }
 
-    async getAllAdListings(filter: Partial<IAdListing> = {}, options: { skip?: number; limit?: number } = {}) {
-        const now = new Date();
-        if (filter && (filter as any).status === "active") {
-            const effectiveFilter: any = {
-                ...(filter as any),
-                startDate: { $lte: now },
-                endDate: { $gt: now }
-            };
-            return await this.userRepo.findAllAdListings(effectiveFilter, options);
+    // async getAllAdListings(filter: Partial<IAdListing> = {}, options: { skip?: number; limit?: number } = {}) {
+    //     const now = new Date();
+    //     if (filter && (filter as any).status === "active") {
+    //         const effectiveFilter: any = {
+    //             ...(filter as any),
+    //             startDate: { $lte: now },
+    //             endDate: { $gt: now }
+    //         };
+    //         return await this.userRepo.findAllAdListings(effectiveFilter, options);
+    //     }
+    //     return await this.userRepo.findAllAdListings(filter, options);
+    // }
+
+    async getAllAdListings() {
+        const ads = await this.userRepo.getAllAdListings();
+        if (!ads || ads.length === 0) {
+            throw new Error("No advertisements found");
         }
-        return await this.userRepo.findAllAdListings(filter, options);
+        return ads;
     }
 
     async deleteAdListing(adListingId: string) {

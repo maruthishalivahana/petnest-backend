@@ -267,27 +267,46 @@ export const getWishlistController = async (req: Request, res: Response) => {
 
 export const getpetById = async (req: Request, res: Response) => {
     try {
-        const buyerId = req.user?.id
+        const buyerId = req.user?.id;
         if (!buyerId) {
             return res.status(403).json({
                 message: "Access denied"
-            })
+            });
         }
-        const { petid } = req.params
-        if (!petid) {
+        const { petId } = req.params;
+        if (!petId) {
             return res.status(400).json({
-                message: "pet id required"
-            })
+                message: "Pet ID is required"
+            });
         }
-        const pet = await buyerService.getByIdPets(petid)
-        return pet
+        const pet = await buyerService.getByIdPets(petId);
+
+        if (!pet) {
+            return res.status(404).json({
+                message: "Pet not found"
+            });
+        }
+
+        return res.status(200).json({
+            message: "Pet retrieved successfully",
+            pet: pet
+        });
 
     } catch (error: any) {
-        console.error("somthing went wrong")
+        console.error("Get pet by ID error:", error);
+        const errorMessage = (error as Error).message;
+
+        if (errorMessage === "Pet not found") {
+            return res.status(404).json({
+                message: errorMessage
+            });
+        }
+
         return res.status(500).json({
-            message: "oops! somthing went wrong", error
-        })
-
+            message: "Oops! Something went wrong!",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: errorMessage
+            })
+        });
     }
-
-}
+};

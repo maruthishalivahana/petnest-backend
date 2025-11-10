@@ -12,7 +12,10 @@ import {
 import {
     getAdByIdController,
     deleteAdListingController,
+    updateAdvertisementStatusController,
+    getAllApprovedAdvertisementsController,
     getAllAdListingsController,
+    // getAllAdListingsController,
 
 } from "../modules/user";
 import {
@@ -207,25 +210,26 @@ adminRouter.get(
     requireRole(['admin']),
     getAllAdvertisementsController
 );
-// admin listing of ad listings with optional filters
+// Get all pending advertisement requests
 adminRouter.get(
     '/advertisements/requests',
     verifyToken,
     requireRole(['admin']),
     getAllPendingAdvertisementsController
 );
-adminRouter.get(
-    '/advertisements/listings',
+
+adminRouter.patch(
+    '/ad/request/:adId/:status',
     verifyToken,
     requireRole(['admin']),
-    getAllAdListingsController
+    updateAdvertisementStatusController
 );
-// fetch a specific ad listing (must be after static routes)
+
 adminRouter.get(
-    '/advertisements/:adId',
+    '/advertisements/approved',
     verifyToken,
     requireRole(['admin']),
-    getAdByIdController
+    getAllApprovedAdvertisementsController
 );
 
 
@@ -236,13 +240,28 @@ adminRouter.post(
     uploadAd.array('images', 5),
     createAdListingController
 );
+adminRouter.get(
+    '/advertisements/listings',
+    verifyToken,
+    requireRole(['admin']),
+    getAllAdListingsController
+);
 
 adminRouter.patch(
-    '/advertisements/:adId/:status',
+    '/advertisements/:adId/status',
     verifyToken,
     requireRole(['admin']),
     changeAdStatusController
 )
+
+
+adminRouter.get(
+    '/advertisements/:adId',
+    verifyToken,
+    requireRole(['admin']),
+    getAdByIdController
+);
+
 // delete ad listing
 adminRouter.delete(
     '/advertisements/:adId',
