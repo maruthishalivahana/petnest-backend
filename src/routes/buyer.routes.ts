@@ -77,8 +77,9 @@ buyerRouter.get(
     requireRole(['buyer']),
     getAllPetsController
 );
+// Get pet by ID
 buyerRouter.get(
-    '/pets/:petid',
+    '/pets/:petId',
     verifyToken,
     requireRole(['buyer']),
     getpetById

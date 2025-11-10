@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
-import { ca } from "zod/v4/locales";
+import { ca, is } from "zod/v4/locales";
 
 const userService = new UserService();
 
@@ -28,68 +28,6 @@ export const getAllUsersController = async (req: Request, res: Response) => {
     }
 };
 
-export const getAllAdListingsController = async (req: Request, res: Response) => {
-    try {
-        // Admin can pass filters; default behavior returns all listings matching filters
-        const status = req.query.status as string | undefined;
-        const adSpot = req.query.adSpot as string | undefined;
-        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
-        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-
-        const filter: any = {};
-        if (status) filter.status = status;
-        if (adSpot) filter.adSpot = adSpot;
-
-        const ads = await userService.getAllAdListings(filter, { skip, limit });
-        return res.status(200).json({ message: 'Ad listings fetched', advertisements: ads });
-    } catch (error) {
-        console.error('Error fetching ad listings (admin):', error);
-        return res.status(500).json({ message: 'Failed to fetch ad listings', error: (error as Error).message });
-    }
-};
-
-export const getAdByIdController = async (req: Request, res: Response) => {
-    try {
-        const adId = req.params.adId;
-        if (!adId) return res.status(400).json({ message: "Ad ID is required" });
-        const ad = await userService.getAdById(adId);
-        return res.status(200).json({ message: "Advertisement fetched", advertisement: ad });
-    } catch (error) {
-        console.error("Error fetching advertisement:", error);
-        return res.status(500).json({ message: "Failed to fetch advertisement", error: (error as Error).message });
-    }
-};
-
-export const deleteAdListingController = async (req: Request, res: Response) => {
-    try {
-        const adminid = req.user?.id;
-        if (!adminid) return res.status(403).json({ message: "Access denied" });
-        const adId = req.params.adId;
-        if (!adId) return res.status(400).json({ message: "Ad ID is required" });
-        const deleted = await userService.deleteAdListing(adId);
-        return res.status(200).json({ message: "Advertisement deleted", deleted });
-    } catch (error) {
-        console.error("Error deleting advertisement:", error);
-        return res.status(500).json({ message: "Failed to delete advertisement", error: (error as Error).message });
-    }
-};
-
-
-export const getPublicAdByIdController = async (req: Request, res: Response) => {
-    try {
-        const adId = req.params.adId;
-        if (!adId) return res.status(400).json({ message: 'Ad ID is required' });
-        const ad = await userService.getAdById(adId);
-        // Only allow public access if ad is active (or keep as-is if admins call)
-        if (!ad || (ad.status && ad.status !== 'active')) {
-            return res.status(404).json({ message: 'Advertisement not found' });
-        }
-        return res.status(200).json({ message: 'Advertisement fetched', advertisement: ad });
-    } catch (error) {
-        console.error('Error fetching public advertisement:', error);
-        return res.status(500).json({ message: 'Failed to fetch advertisement', error: (error as Error).message });
-    }
-};
 
 export const getUserByIdController = async (req: Request, res: Response) => {
     try {
@@ -252,53 +190,9 @@ export const unbanUserController = async (req: Request, res: Response) => {
     }
 };
 
-export const getAllAdvertisementsController = async (req: Request, res: Response) => {
-    try {
-        const ads = await userService.getAllAdvertisements();
-
-        return res.status(200).json({
-            message: "Advertisements fetched successfully",
-            advertisements: ads
-        });
-
-    } catch (error) {
-        console.error("Error fetching advertisements:", error);
-
-        return res.status(500).json({
-            message: "Failed to fetch advertisements",
-            error: (error as Error).message
-        });
-
-    }
-}
-
-export const getAllPendingAdvertisementsController = async (req: Request, res: Response) => {
-    try {
-        const status = req.params.status;
-        const RequestedAds = await userService.getallPendingAdvertisiments();
-        if (!RequestedAds) {
-            return res.status(404).json({
-                message: `No advertisements found with status: ${status}`
-            });
-        }
-        return res.status(200).json({
-            message: "Advertisements fetched successfully",
-            advertisements: RequestedAds
-        });
-
-    } catch (error) {
-        console.error("Error fetching advertisements by status:", error);
-
-        return res.status(500).json({
-            message: "Failed to fetch advertisements",
-            error: (error as Error).message
-        });
 
 
-    }
-
-};
-
+// =================== Advertisement Controllers =================== //
 
 export const createAdListingController = async (req: Request, res: Response) => {
     try {
@@ -362,6 +256,127 @@ export const createAdListingController = async (req: Request, res: Response) => 
     }
 }
 
+export const getAllPendingAdvertisementsController = async (req: Request, res: Response) => {
+    try {
+        const status = req.params.status;
+        const RequestedAds = await userService.getallPendingAdvertisiments();
+        if (!RequestedAds) {
+            return res.status(404).json({
+                message: `No advertisements found with status: ${status}`
+            });
+        }
+        return res.status(200).json({
+            message: "Advertisements fetched successfully",
+            advertisements: RequestedAds
+        });
+
+    } catch (error) {
+        console.error("Error fetching advertisements by status:", error);
+
+        return res.status(500).json({
+            message: "Failed to fetch advertisements",
+            error: (error as Error).message
+        });
+
+
+    }
+
+};
+
+export const getAllApprovedAdvertisementsController = async (req: Request, res: Response) => {
+    try {
+        const adminid = req.user?.id;
+        if (!adminid) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+        const approvedAds = await userService.getAllApprovedAdvertisements();
+        if (!approvedAds || approvedAds.length === 0) {
+            return res.status(404).json({
+                message: "No approved advertisements found"
+            });
+        }
+        return res.status(200).json({
+            message: "Approved advertisements fetched successfully",
+            advertisements: approvedAds
+        });
+
+
+    } catch (error) {
+        console.error("Error fetching approved advertisements:", error);
+        return res.status(500).json({
+            message: "Failed to fetch approved advertisements",
+            error: (error as Error).message
+        });
+    }
+}
+
+export const updateAdvertisementStatusController = async (req: Request, res: Response) => {
+    try {
+        const adminid = req.user?.id;
+        if (!adminid) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+        const adId = req.params.adId;
+        const { status } = req.params;
+        let isApproved: boolean = false;
+        if (status !== 'approved' && status !== 'rejected') {
+            return res.status(400).json({
+                message: "Invalid status. Must be 'approved' or 'rejected'"
+            });
+        }
+        if (status === 'approved') isApproved = true;
+        if (status === 'rejected') isApproved = false;
+
+        if (!adId || !status) {
+            return res.status(400).json({
+                message: "Ad ID and status are required"
+            });
+        }
+
+        const result = await userService.updateAdvertisementStatus(adId, isApproved);
+        return res.status(200).json({
+            message: "Advertisement status updated successfully",
+            updatedAd: result
+        });
+
+
+
+    } catch (error) {
+        console.error("Error updating advertisement status:", error);
+
+        return res.status(500).json({
+            message: "Failed to update advertisement status",
+            error: (error as Error).message
+        });
+
+    }
+}
+
+
+export const getAllAdvertisementsController = async (req: Request, res: Response) => {
+    try {
+        const ads = await userService.getAllAdvertisements();
+
+        return res.status(200).json({
+            message: "Advertisements fetched successfully",
+            advertisements: ads
+        });
+
+    } catch (error) {
+        console.error("Error fetching advertisements:", error);
+
+        return res.status(500).json({
+            message: "Failed to fetch advertisements",
+            error: (error as Error).message
+        });
+
+    }
+}
+
 export const changeAdStatusController = async (req: Request, res: Response) => {
     try {
         const adminid = req.user?.id;
@@ -371,8 +386,8 @@ export const changeAdStatusController = async (req: Request, res: Response) => {
             });
         }
         const adId = req.params.adId;
-        // Accept status either from URL param or request body for flexibility
-        const status = req.params.status;
+
+        const { status } = req.body;
 
         if (!adId || !status) {
             return res.status(400).json({
@@ -395,3 +410,77 @@ export const changeAdStatusController = async (req: Request, res: Response) => {
         });
     }
 }
+
+// export const getAllAdListingsController = async (req: Request, res: Response) => {
+//     try {
+//         // Admin can pass filters; default behavior returns all listings matching filters
+//         const status = req.query.status as string | undefined;
+//         const adSpot = req.query.adSpot as string | undefined;
+//         const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : undefined;
+//         const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+
+//         const filter: any = {};
+//         if (status) filter.status = status;
+//         if (adSpot) filter.adSpot = adSpot;
+
+//         const ads = await userService.getAllAdListings(filter, { skip, limit });
+//         return res.status(200).json({ message: 'Ad listings fetched', advertisements: ads });
+//     } catch (error) {
+//         console.error('Error fetching ad listings (admin):', error);
+//         return res.status(500).json({ message: 'Failed to fetch ad listings', error: (error as Error).message });
+//     }
+// };
+
+
+export const getAllAdListingsController = async (req: Request, res: Response) => {
+    try {
+        const ads = await userService.getAllAdListings();
+        return res.status(200).json({ message: 'Ad listings fetched', advertisements: ads });
+    } catch (error) {
+        console.error("Error fetching advertisement listings:", error);
+        return res.status(500).json({ message: "Failed to fetch advertisement listings", error: (error as Error).message });
+    }
+};
+
+export const getAdByIdController = async (req: Request, res: Response) => {
+    try {
+        const adId = req.params.adId;
+        if (!adId) return res.status(400).json({ message: "Ad ID is required" });
+        const ad = await userService.getAdById(adId);
+        return res.status(200).json({ message: "Advertisement fetched", advertisement: ad });
+    } catch (error) {
+        console.error("Error fetching advertisement:", error);
+        return res.status(500).json({ message: "Failed to fetch advertisement", error: (error as Error).message });
+    }
+};
+
+export const deleteAdListingController = async (req: Request, res: Response) => {
+    try {
+        const adminid = req.user?.id;
+        if (!adminid) return res.status(403).json({ message: "Access denied" });
+        const adId = req.params.adId;
+        if (!adId) return res.status(400).json({ message: "Ad ID is required" });
+        const deleted = await userService.deleteAdListing(adId);
+        return res.status(200).json({ message: "Advertisement deleted", deleted });
+    } catch (error) {
+        console.error("Error deleting advertisement:", error);
+        return res.status(500).json({ message: "Failed to delete advertisement", error: (error as Error).message });
+    }
+};
+
+
+export const getPublicAdByIdController = async (req: Request, res: Response) => {
+    try {
+        const adId = req.params.adId;
+        if (!adId) return res.status(400).json({ message: 'Ad ID is required' });
+        const ad = await userService.getAdById(adId);
+        // Only allow public access if ad is active (or keep as-is if admins call)
+        if (!ad || (ad.status && ad.status !== 'active')) {
+            return res.status(404).json({ message: 'Advertisement not found' });
+        }
+        return res.status(200).json({ message: 'Advertisement fetched', advertisement: ad });
+    } catch (error) {
+        console.error('Error fetching public advertisement:', error);
+        return res.status(500).json({ message: 'Failed to fetch advertisement', error: (error as Error).message });
+    }
+};

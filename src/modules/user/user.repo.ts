@@ -51,13 +51,26 @@ export class UserRepository {
     }
 
     async findByIsActive() {
-        const ads = await Advertisement.find({ isActive: false });
+        const ads = await Advertisement.find({ isApproved: false });
         return ads;
     }
 
     async findById(adid: string) {
         const ad = await Advertisement.findById(adid);
         return ad;
+    }
+
+    async updateAdvertisementStatus(adId: string, isApproved: boolean) {
+        return await Advertisement.findByIdAndUpdate(
+            adId,
+            { isApproved: isApproved },
+            { new: true }
+        );
+    }
+
+    async getAllApprovedAdvertisements() {
+        const ads = await Advertisement.find({ isApproved: true });
+        return ads;
     }
     async createAdListing(adData: Partial<IAdListing>) {
         const newAdListing = new AdListing(adData);
@@ -94,10 +107,15 @@ export class UserRepository {
         return await AdListing.findByIdAndDelete(adListingId);
     }
 
-    async findAllAdListings(filter: Partial<IAdListing> = {}, options: { skip?: number; limit?: number } = {}) {
-        const q = AdListing.find(filter as any);
-        if (options.skip) q.skip(options.skip);
-        if (options.limit) q.limit(options.limit);
+    // async findAllAdListings(filter: Partial<IAdListing> = {}, options: { skip?: number; limit?: number } = {}) {
+    //     const q = AdListing.find(filter as any);
+    //     if (options.skip) q.skip(options.skip);
+    //     if (options.limit) q.limit(options.limit);
+    //     return await q.exec();
+    // }
+
+    async getAllAdListings() {
+        const q = AdListing.find({});
         return await q.exec();
     }
 

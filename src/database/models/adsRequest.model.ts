@@ -8,7 +8,7 @@ export interface IAdvertisement extends Document {
     adSpot: 'homepageBanner' | 'sidebar' | 'footer' | 'blogFeature';
     message?: string;
     mediaUrl?: string;
-    isActive: boolean;
+    isApproved: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -30,7 +30,7 @@ const AdvertisementSchema: Schema<IAdvertisement> = new Schema(
             enum: ['homepageBanner', 'sidebar', 'footer', 'blogFeature'],
             required: true
         },
-        isActive: {
+        isApproved: {
             type: Boolean,
             default: false
         },
