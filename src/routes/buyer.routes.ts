@@ -11,7 +11,8 @@ import {
     getAllPetsController,
     getpetById,
     getWishlistController,
-    removefromWishlistController
+    removefromWishlistController,
+    searchPetsController
 } from "../modules/buyer/buyer.controller";
 
 
@@ -77,6 +78,15 @@ buyerRouter.get(
     requireRole(['buyer']),
     getAllPetsController
 );
+
+// Search pets 
+buyerRouter.get(
+    '/pets/search',
+    verifyToken,
+    requireRole(['buyer']),
+    searchPetsController
+);
+
 // Get pet by ID
 buyerRouter.get(
     '/pets/:petId',
@@ -84,6 +94,3 @@ buyerRouter.get(
     requireRole(['buyer']),
     getpetById
 );
-
-
-

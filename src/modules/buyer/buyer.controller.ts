@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { BuyerService } from "./buyer.service";
-import { z } from "zod";
+import { success, z } from "zod";
 import { BuyerProfileSchema } from "../../validations/buyer.validation";
 import { get } from "http";
 
@@ -310,3 +310,34 @@ export const getpetById = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const searchPetsController = async (req: Request, res: Response) => {
+    try {
+        const buyerId = req.user?.id;
+        if (!buyerId) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+        const { keyword } = req.query;
+        if (keyword && typeof keyword !== 'string') {
+            return res.status(400).json({ message: "Keyword must be a string" });
+        }
+        const pets = await buyerService.searchPets(keyword);
+
+        return res.status(200).json({
+            success: true,
+            message: pets.length > 0 ? "Pets retrieved successfully" : "No pets found matching your search",
+            count: pets.length,
+            pets: pets
+        });
+
+    } catch (error) {
+        console.error("Search pets error:", error);
+        const errorMessage = (error as Error).message;
+        return res.status(500).json({
+            message: "Oops! Something went wrong!",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: errorMessage
+            })
+        });
+    }
+}
