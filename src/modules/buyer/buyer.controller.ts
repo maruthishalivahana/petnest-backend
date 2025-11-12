@@ -3,6 +3,7 @@ import { BuyerService } from "./buyer.service";
 import { success, z } from "zod";
 import { BuyerProfileSchema } from "../../validations/buyer.validation";
 import { get } from "http";
+import { PetFilter } from "./buyer.types";
 
 const buyerService = new BuyerService();
 
@@ -332,6 +333,33 @@ export const searchPetsController = async (req: Request, res: Response) => {
 
     } catch (error) {
         console.error("Search pets error:", error);
+        const errorMessage = (error as Error).message;
+        return res.status(500).json({
+            message: "Oops! Something went wrong!",
+            ...(process.env.NODE_ENV === 'development' && {
+                error: errorMessage
+            })
+        });
+    }
+}
+
+export const filterPetsController = async (req: Request, res: Response) => {
+    try {
+        const buyerId = req.user?.id;
+        if (!buyerId) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+        const filters = req.query as PetFilter;
+        const pets = await buyerService.filterPets(filters);
+
+        return res.status(200).json({
+            success: true,
+            message: pets.length > 0 ? "Pets retrieved successfully" : "No pets found matching your filters",
+            count: pets.length,
+            pets: pets
+        });
+    } catch (error) {
+        console.error("Filter pets error:", error);
         const errorMessage = (error as Error).message;
         return res.status(500).json({
             message: "Oops! Something went wrong!",

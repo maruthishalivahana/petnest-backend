@@ -1,6 +1,6 @@
 import { BuyerRepository } from "./buyer.repo";
 import { BuyerProfileSchema } from "../../validations/buyer.validation";
-import { BuyerProfileData } from "./buyer.types";
+import { BuyerProfileData, PetFilter } from "./buyer.types";
 
 const buyerRepo = new BuyerRepository();
 
@@ -157,5 +157,14 @@ export class BuyerService {
         const pets = await buyerRepo.searchPets(keyword);
         // Return empty array if no pets found (not an error condition)
         return pets || [];
+    }
+    async filterPets(filters: PetFilter) {
+        const pets = await buyerRepo.filterpets(filters);
+        if (!pets || pets.length === 0) {
+            throw new Error("No pets found matching the filter criteria");
+        }
+        return pets || [];
+
+
     }
 }
