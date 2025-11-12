@@ -152,4 +152,10 @@ export class BuyerService {
 
         return wishlist;
     }
+
+    async searchPets(keyword?: string) {
+        const pets = await buyerRepo.searchPets(keyword);
+        // Return empty array if no pets found (not an error condition)
+        return pets || [];
+    }
 }
