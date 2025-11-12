@@ -51,7 +51,8 @@ export class BuyerRepository {
                 { breedName: { $regex: keyword, $options: 'i' } },
                 { 'location.city': { $regex: keyword, $options: 'i' } },
                 { 'location.state': { $regex: keyword, $options: 'i' } },
-                { 'location.pincode': { $regex: keyword, $options: 'i' } }
+                { 'location.pincode': { $regex: keyword, $options: 'i' } },
+                { price: { $regex: keyword, $options: 'i' } }
             ];
         }
 
