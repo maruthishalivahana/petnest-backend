@@ -19,3 +19,13 @@ export interface BuyerResponse {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface PetFilter {
+    gender?: string;
+    age?: string;
+    city?: string;
+    state?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    breedName?: string;
+}

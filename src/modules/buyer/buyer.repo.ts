@@ -1,6 +1,7 @@
 import User from "../../database/models/user.model";
 import Pet from "@database/models/pet.model";
 import Wishlist from "@database/models/wishlist.model";
+import { PetFilter } from "./buyer.types";
 
 export class BuyerRepository {
     /**
@@ -60,5 +61,22 @@ export class BuyerRepository {
             .populate('sellerId', 'name email')
             .sort({ createdAt: -1 });
     }
+    async filterpets(filters: PetFilter) {
+        const query: any = { status: 'active' };
+        const { gender, age, city, state, minPrice, maxPrice, breedName } = filters
 
+        if (gender) { query.gender = gender; }
+        if (age) { query.age = age; }
+        if (city) { query['location.city'] = city; }
+        if (state) { query['location.state'] = state; }
+        if (minPrice !== undefined) { query.price = { ...query.price, $gte: minPrice }; }
+        if (maxPrice !== undefined) { query.price = { ...query.price, $lte: maxPrice }; }
+        if (breedName) { query.breedName = breedName; }
+
+
+        return await Pet.find(query)
+            .populate('breedId', 'name')
+            .populate('sellerId', 'name email')
+            .sort({ createdAt: -1 });
+    }
 }
