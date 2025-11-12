@@ -42,26 +42,33 @@ export class BuyerRepository {
     async getWishList(buyerId: string) {
         return await Wishlist.find({ buyerId }).populate("petId", "name price gender images isVerified status");
     }
-
     async searchPets(keyword?: string) {
         const query: any = { status: 'active' };
+
         if (keyword && keyword.trim() !== '') {
-            query.$or = [
+            const num = Number(keyword);
+
+            const orConditions: any[] = [
                 { name: { $regex: keyword, $options: 'i' } },
                 { breedName: { $regex: keyword, $options: 'i' } },
                 { 'location.city': { $regex: keyword, $options: 'i' } },
                 { 'location.state': { $regex: keyword, $options: 'i' } },
-                { 'location.pincode': { $regex: keyword, $options: 'i' } },
-                { price: { $regex: keyword, $options: 'i' } }
+                { 'location.pincode': { $regex: keyword, $options: 'i' } }
             ];
+
+            if (!isNaN(num)) {
+                orConditions.push({ price: num });
+            }
+
+            query.$or = orConditions;
         }
 
-        // 🐶 Return matching pets or all active pets if no keyword
         return await Pet.find(query)
             .populate('breedId', 'name')
             .populate('sellerId', 'name email')
             .sort({ createdAt: -1 });
     }
+
     async filterpets(filters: PetFilter) {
         const query: any = { status: 'active' };
         const { gender, age, city, state, minPrice, maxPrice, breedName } = filters
