@@ -139,11 +139,12 @@ export const login = async (req: Request, res: Response) => {
 
         res.cookie('token', result.token, {
             httpOnly: true,
-            secure: false,
+            secure: false,          // OK in localhost
+            sameSite: 'lax',        // Fix: Chrome will now accept this
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/',
-            sameSite: 'none'
+            path: '/'
         });
+
 
         const { password: _, otpCode, ...userData } = result.user.toObject();
 
@@ -192,6 +193,43 @@ export const logout = async (req: Request, res: Response) => {
         return res.status(500).json({
             message: "Oops! Something went wrong!",
             errors: (error as Error).message
+        });
+    }
+};
+
+export const me = async (req: Request, res: Response) => {
+    try {
+        // Check if user is authenticated via middleware
+        if (!req.user) {
+            return res.status(401).json({
+                message: "Not authenticated"
+            });
+        }
+
+        // Extract user ID from req.user (set by verifyToken middleware)
+        const userId = req.user.id;
+
+        // Fetch full user data from database
+        const user = await authService.getUserById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        // Remove sensitive fields
+        const { password, otpCode, otpExpiry, ...userData } = user.toObject();
+
+        return res.status(200).json({
+            message: "Authenticated",
+            user: userData
+        });
+    } catch (error: any) {
+        console.error("Get current user error:", error);
+        return res.status(500).json({
+            message: "Oops! Something went wrong!",
+            errors: error.message
         });
     }
 };

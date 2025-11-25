@@ -5,12 +5,22 @@ if (!process.env.JWT_SECRET) {
 }
 
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import express from 'express';
 import connectDB from './src/shared/config/database';
 import router from './src/routes';
 
 
 const app = express();
+
+// CORS configuration - allow frontend origin
+app.use(cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
 app.use(cookieParser());
 
 // Add request logging middleware

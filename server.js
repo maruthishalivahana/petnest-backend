@@ -1,10 +1,23 @@
 import dotenv from 'dotenv';
+import cors from 'cors';
 import express from 'express';
 import connectDB from './config/database.js';
 import { authRouter } from './routes/user.routes.js';
 import { buyerRouter } from './routes/buyer.routes.js';
+
 dotenv.config();
 const app = express();
+
+// CORS configuration - must come after app initialization
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+
+
 app.use(express.json());
 app.use('/v1/api/auth', authRouter);
 app.use('/v1/api/buyer', buyerRouter);
