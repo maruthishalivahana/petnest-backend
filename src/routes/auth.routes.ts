@@ -4,8 +4,10 @@ import {
     login,
     verifyOtpController,
     resendOtp,
-    logout
+    logout,
+    me
 } from "../modules/auth";
+import { verifyToken } from "../shared/middlewares/auth.middleware";
 
 export const authRouter = express.Router();
 
@@ -24,3 +26,6 @@ authRouter.post('/login', login);
 
 // User logout
 authRouter.post('/logout', logout);
+
+// Get current authenticated user
+authRouter.get('/me', verifyToken, me);

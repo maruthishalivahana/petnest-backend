@@ -159,4 +159,8 @@ export class AuthService {
             user
         };
     }
+
+    async getUserById(userId: string) {
+        return await this.authRepo.findUserById(userId);
+    }
 }
