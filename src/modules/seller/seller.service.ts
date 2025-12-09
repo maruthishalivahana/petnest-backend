@@ -14,15 +14,11 @@ export class SellerService {
         files: { [fieldname: string]: Express.Multer.File[] }
     ) {
         try {
-            console.log("Service - Received body:", body);
-            console.log("Service - Received files:", files);
-
             const existingRequest = await this.sellerRepo.findSellerByUserId(userId);
 
             // Validate the body data (without documents)
             const validationResult = SellerRequestDataSchema.safeParse(body);
             if (!validationResult.success) {
-                console.error("Validation errors:", validationResult.error.issues);
                 throw validationResult.error;
             }
 
@@ -40,8 +36,6 @@ export class SellerService {
             const idProofUrl = files?.idProof?.[0]?.path;
             const certificateUrl = files?.certificate?.[0]?.path;
             const shopImageUrl = files?.shopImage?.[0]?.path;
-
-            console.log("Extracted URLs:", { idProofUrl, certificateUrl, shopImageUrl });
 
             // Validate that required files are uploaded
             if (!idProofUrl || !certificateUrl) {

@@ -22,26 +22,122 @@ export class BuyerRepository {
         );
     }
     async findAllPets() {
-        return await Pet.find({});
+        return await Pet.find({})
+            .populate({
+                path: "breedId",
+                select: "name species",
+                populate: {
+                    path: "species",
+                    select: "name category"
+                }
+            })
+            .populate({
+                path: "sellerId",
+                select: "brandName userId",
+                populate: {
+                    path: "userId",
+                    select: "name"
+                }
+            });
     }
 
-    async addToWishlist(buyerId: string, petId: string) {
-        const wishlistItem = new Wishlist({ buyerId, petId });
-        return await wishlistItem.save();
+    /**
+     * ============= NEW CART-STYLE WISHLIST METHODS =============
+     * Using single document per user with items array
+     * Provides better performance, security, and scalability
+     */
+
+    /**
+     * Add pet to user's wishlist
+     * SECURITY: Uses $addToSet to prevent duplicates and ensures user-level isolation
+     * Creates wishlist document if it doesn't exist
+     */
+    async addToWishlist(userId: string, petId: string) {
+        return await Wishlist.findOneAndUpdate(
+            { user: userId },
+            {
+                $addToSet: {
+                    items: {
+                        pet: petId,
+                        addedAt: new Date()
+                    }
+                }
+            },
+            {
+                upsert: true,  // Create document if doesn't exist
+                new: true,     // Return updated document
+                setDefaultsOnInsert: true
+            }
+        );
     }
 
-    async findOne(buyerId: string, petId: string) {
-        return await Wishlist.findOne({ buyerId, petId });
+    /**
+     * Remove pet from user's wishlist
+     * SECURITY: Only modifies the authenticated user's wishlist
+     */
+    async removeFromWishlist(userId: string, petId: string) {
+        return await Wishlist.findOneAndUpdate(
+            { user: userId },
+            {
+                $pull: {
+                    items: { pet: petId }
+                }
+            },
+            { new: true }
+        );
     }
+
+    /**
+     * Get user's complete wishlist with populated pet details
+     * SECURITY: Only returns the authenticated user's wishlist
+     */
+    async getWishlist(userId: string) {
+        return await Wishlist.findOne({ user: userId })
+            .populate({
+                path: 'items.pet',
+                select: 'name price gender images isVerified status breedName location'
+            })
+            .lean();
+    }
+
+    /**
+     * Check if a specific pet is in user's wishlist
+     * SECURITY: Fast compound index query, user-isolated
+     * Returns true if pet exists in user's wishlist, false otherwise
+     */
+    async isWishlisted(userId: string, petId: string): Promise<boolean> {
+        const result = await Wishlist.findOne(
+            { user: userId, 'items.pet': petId },
+            { _id: 1 } // Only return _id for performance
+        ).lean();
+
+        return !!result;
+    }
+
+    /**
+     * Get all wishlist pet IDs for a user (for batch operations)
+     * SECURITY: Only returns the authenticated user's wishlist pet IDs
+     */
+    async getWishlistPetIds(userId: string): Promise<string[]> {
+        const wishlist = await Wishlist.findOne(
+            { user: userId },
+            { 'items.pet': 1 }
+        ).lean();
+
+        if (!wishlist || !wishlist.items) {
+            return [];
+        }
+
+        return wishlist.items.map((item: any) => String(item.pet));
+    }
+
+    /**
+     * Find pet by ID (no user context needed - public pet data)
+     */
     async findById(id: string) {
         return await Pet.findById(id);
     }
-    async removeFromWishlist(buyerId: string, petId: string) {
-        return await Wishlist.findOneAndDelete({ buyerId, petId });
-    }
-    async getWishList(buyerId: string) {
-        return await Wishlist.find({ buyerId }).populate("petId", "name price gender images isVerified status");
-    }
+
     async searchPets(keyword?: string) {
         const query: any = { status: 'active' };
 

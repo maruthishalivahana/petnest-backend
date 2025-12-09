@@ -8,9 +8,6 @@ const sellerService = new SellerService();
 // Seller Controllers
 export const SellerFromRequestController = async (req: Request, res: Response) => {
     try {
-        console.log("SellerFromRequestController - Body:", req.body);
-        console.log("SellerFromRequestController - Files:", req.files);
-
         const userId = req.user?.id;
 
         if (!userId) {
