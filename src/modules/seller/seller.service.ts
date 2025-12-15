@@ -120,4 +120,39 @@ export class SellerService {
     async getAllVerifiedSellers() {
         return await this.sellerRepo.findAllVerifiedSellers();
     }
+
+    // ============= NEW DUAL-MODE SELLER METHODS =============
+
+    async enableSellerMode(userId: string) {
+        return await this.sellerRepo.enableSellerMode(userId);
+    }
+
+    async uploadSellerDocuments(userId: string, documents: string[]) {
+        return await this.sellerRepo.uploadSellerDocuments(userId, documents);
+    }
+
+    async getSellerVerificationStatus(userId: string) {
+        return await this.sellerRepo.getSellerVerificationStatus(userId);
+    }
+
+    async getSellerAnalytics(userId: string) {
+        return await this.sellerRepo.getSellerAnalytics(userId);
+    }
+
+    async updateSellerAnalytics(userId: string, analyticsUpdate: {
+        totalViews?: number;
+        totalClicks?: number;
+        totalMessages?: number;
+    }) {
+        return await this.sellerRepo.updateSellerAnalytics(userId, analyticsUpdate);
+    }
+
+    // Admin methods for dual-mode seller verification
+    async adminUpdateSellerVerification(userId: string, status: 'pending' | 'verified' | 'rejected', notes?: string) {
+        return await this.sellerRepo.adminUpdateSellerVerification(userId, status, notes);
+    }
+
+    async getAllDualModeSellers() {
+        return await this.sellerRepo.getAllDualModeSellers();
+    }
 }

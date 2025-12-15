@@ -135,7 +135,19 @@ export class BuyerRepository {
      * Find pet by ID (no user context needed - public pet data)
      */
     async findById(id: string) {
-        return await Pet.findById(id);
+        return await Pet.findById(id)
+            .populate({
+                path: 'breedId',
+                select: 'name species',
+                populate: {
+                    path: 'species',
+                    select: 'speciesName category scientificName'
+                }
+            })
+            .populate({
+                path: 'sellerId',
+                select: 'brandName logoUrl location whatsappNumber'
+            });
     }
 
     async searchPets(keyword?: string) {
