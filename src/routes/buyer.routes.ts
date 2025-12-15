@@ -13,7 +13,8 @@ import {
     getWishlistController,
     removefromWishlistController,
     searchPetsController,
-    filterPetsController
+    filterPetsController,
+    checkWishlist
 
 } from "../modules/buyer/buyer.controller";
 
@@ -22,21 +23,21 @@ import {
 export const buyerRouter = express.Router();
 
 // ============= BUYER PROFILE MANAGEMENT =============
-// Update buyer profile
+// Get logged-in buyer's profile (SECURE - uses JWT token only)
+buyerRouter.get(
+    '/profile',
+    verifyToken,
+    requireRole(['buyer']),
+    getBuyerProfileByIdController
+);
+
+// Update buyer profile (SECURE - uses JWT token only)
 buyerRouter.patch(
     '/profile',
     verifyToken,
     requireRole(['buyer']),
     upload.single('profilePic'),
     buyerProfileUpdateController
-);
-
-// Get buyer profile by ID
-buyerRouter.get(
-    '/profile/:buyerId',
-    verifyToken,
-    requireRole(['buyer']),
-    getBuyerProfileByIdController
 );
 
 // ============= BREED ACCESS =============
@@ -70,6 +71,12 @@ buyerRouter.delete(
     verifyToken,
     requireRole(['buyer']),
     removefromWishlistController
+);
+buyerRouter.get(
+    '/wishlist/check/:petId',
+    verifyToken,
+    requireRole(['buyer']),
+    checkWishlist
 );
 
 // ============= PET BROWSING =============

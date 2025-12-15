@@ -34,18 +34,8 @@ export class PetService {
             throw new Error(`Breed "${petData.breedName}" does not exist`);
         }
 
-        console.log("Found breed:", { id: breed._id, name: breed.name, species: breed.species });
-
         // Get seller profile by userId (from JWT token - secure)
-        console.log("Looking for seller with User ID:", petData.userId);
-
         const sellerProfile = await Seller.findOne({ userId: petData.userId });
-
-        console.log("Seller profile found:", sellerProfile ? {
-            id: sellerProfile._id,
-            userId: sellerProfile.userId,
-            status: sellerProfile.status
-        } : null);
 
         if (!sellerProfile) {
             throw new Error("Seller profile not found. Please submit a seller verification request first.");
@@ -89,8 +79,6 @@ export class PetService {
             sellerId: sellerProfile._id,
             isVerified: false
         };
-
-        console.log("Creating pet with payload:", JSON.stringify(payload, null, 2));
 
         const newPet = await this.petRepo.createPet(payload);
         return newPet;
@@ -145,23 +133,51 @@ export class PetService {
         return updatedPet;
     }
 
-    async deletePet(petId: string) {
-        const deletedPet = await this.petRepo.deletePetById(petId);
+    async deletePet(petId: string, userId: string) {
+        // Find pet and verify ownership
+        const pet = await this.petRepo.findPetById(petId);
 
-        if (!deletedPet) {
+        if (!pet) {
             throw new Error("Pet not found or already deleted");
         }
 
+        // Get seller profile to verify ownership
+        const sellerProfile = await Seller.findOne({ userId: userId });
+
+        if (!sellerProfile) {
+            throw new Error("Seller profile not found");
+        }
+
+        // Verify the pet belongs to this seller
+        if (String(pet.sellerId) !== String(sellerProfile._id)) {
+            throw new Error("Access denied - you can only delete your own pets");
+        }
+
+        const deletedPet = await this.petRepo.deletePetById(petId);
         return deletedPet;
     }
 
-    async updatePet(petId: string, updateData: Partial<PetType>) {
-        const updatedPet = await this.petRepo.updatePet(petId, updateData as any);
+    async updatePet(petId: string, updateData: Partial<PetType>, userId: string) {
+        // Find pet and verify ownership
+        const pet = await this.petRepo.findPetById(petId);
 
-        if (!updatedPet) {
+        if (!pet) {
             throw new Error("Pet not found");
         }
 
+        // Get seller profile to verify ownership
+        const sellerProfile = await Seller.findOne({ userId: userId });
+
+        if (!sellerProfile) {
+            throw new Error("Seller profile not found");
+        }
+
+        // Verify the pet belongs to this seller
+        if (String(pet.sellerId) !== String(sellerProfile._id)) {
+            throw new Error("Access denied - you can only update your own pets");
+        }
+
+        const updatedPet = await this.petRepo.updatePet(petId, updateData as any);
         return updatedPet;
     }
 }

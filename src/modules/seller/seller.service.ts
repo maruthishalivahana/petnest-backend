@@ -14,15 +14,11 @@ export class SellerService {
         files: { [fieldname: string]: Express.Multer.File[] }
     ) {
         try {
-            console.log("Service - Received body:", body);
-            console.log("Service - Received files:", files);
-
             const existingRequest = await this.sellerRepo.findSellerByUserId(userId);
 
             // Validate the body data (without documents)
             const validationResult = SellerRequestDataSchema.safeParse(body);
             if (!validationResult.success) {
-                console.error("Validation errors:", validationResult.error.issues);
                 throw validationResult.error;
             }
 
@@ -40,8 +36,6 @@ export class SellerService {
             const idProofUrl = files?.idProof?.[0]?.path;
             const certificateUrl = files?.certificate?.[0]?.path;
             const shopImageUrl = files?.shopImage?.[0]?.path;
-
-            console.log("Extracted URLs:", { idProofUrl, certificateUrl, shopImageUrl });
 
             // Validate that required files are uploaded
             if (!idProofUrl || !certificateUrl) {
@@ -125,5 +119,40 @@ export class SellerService {
 
     async getAllVerifiedSellers() {
         return await this.sellerRepo.findAllVerifiedSellers();
+    }
+
+    // ============= NEW DUAL-MODE SELLER METHODS =============
+
+    async enableSellerMode(userId: string) {
+        return await this.sellerRepo.enableSellerMode(userId);
+    }
+
+    async uploadSellerDocuments(userId: string, documents: string[]) {
+        return await this.sellerRepo.uploadSellerDocuments(userId, documents);
+    }
+
+    async getSellerVerificationStatus(userId: string) {
+        return await this.sellerRepo.getSellerVerificationStatus(userId);
+    }
+
+    async getSellerAnalytics(userId: string) {
+        return await this.sellerRepo.getSellerAnalytics(userId);
+    }
+
+    async updateSellerAnalytics(userId: string, analyticsUpdate: {
+        totalViews?: number;
+        totalClicks?: number;
+        totalMessages?: number;
+    }) {
+        return await this.sellerRepo.updateSellerAnalytics(userId, analyticsUpdate);
+    }
+
+    // Admin methods for dual-mode seller verification
+    async adminUpdateSellerVerification(userId: string, status: 'pending' | 'verified' | 'rejected', notes?: string) {
+        return await this.sellerRepo.adminUpdateSellerVerification(userId, status, notes);
+    }
+
+    async getAllDualModeSellers() {
+        return await this.sellerRepo.getAllDualModeSellers();
     }
 }

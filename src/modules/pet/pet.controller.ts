@@ -110,17 +110,22 @@ export const deletePetController = async (req: Request, res: Response) => {
             });
         }
 
-        const deletedPet = await petService.deletePet(petId);
+        // Pass userId from JWT token for ownership verification
+        const deletedPet = await petService.deletePet(petId, userId);
 
         return res.status(200).json({
             message: "Pet deleted successfully",
-            petName: deletedPet.name
+            petName: deletedPet ? deletedPet.name : "Pet"
         });
     } catch (error: any) {
         console.error("Error deleting pet:", error);
 
         if (error.message === "Pet not found or already deleted") {
             return res.status(404).json({ message: error.message });
+        }
+
+        if (error.message.includes("Access denied")) {
+            return res.status(403).json({ message: error.message });
         }
 
         return res.status(500).json({
@@ -155,7 +160,8 @@ export const UpdatePetController = async (req: Request, res: Response) => {
             });
         }
 
-        const updatedPet = await petService.updatePet(petId, updateData);
+        // Pass userId from JWT token for ownership verification
+        const updatedPet = await petService.updatePet(petId, updateData, userId);
 
         return res.status(200).json({
             message: "Pet updated successfully",
@@ -166,6 +172,10 @@ export const UpdatePetController = async (req: Request, res: Response) => {
 
         if (error.message === "Pet not found") {
             return res.status(404).json({ message: error.message });
+        }
+
+        if (error.message.includes("Access denied")) {
+            return res.status(403).json({ message: error.message });
         }
 
         return res.status(500).json({
@@ -244,3 +254,5 @@ export const updatePetStatusController = async (req: Request, res: Response) => 
         });
     }
 };
+
+
