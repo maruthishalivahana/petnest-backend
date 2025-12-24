@@ -209,8 +209,8 @@ export const me = async (req: Request, res: Response) => {
         // Extract user ID from req.user (set by verifyToken middleware)
         const userId = req.user.id;
 
-        // Fetch full user data from database
-        const user = await authService.getUserById(userId);
+        // ✅ Fetch user with seller data populated (if sellerId exists)
+        const user = await authService.getUserByIdWithSeller(userId);
 
         if (!user) {
             return res.status(404).json({
@@ -221,10 +221,35 @@ export const me = async (req: Request, res: Response) => {
         // Remove sensitive fields
         const { password, otpCode, otpExpiry, ...userData } = user.toObject();
 
-        return res.status(200).json({
+        const response: any = {
             message: "Authenticated",
-            user: userData
-        });
+            user: {
+                id: userData._id,
+                name: userData.name,
+                email: userData.email,
+                role: userData.role,
+                profilePic: userData.profilePic,
+                phoneNumber: userData.phoneNumber,
+                bio: userData.bio,
+                location: userData.location,
+                isVerified: userData.isVerified,
+                isBanned: userData.isBanned,
+                preferences: userData.preferences,
+                createdAt: userData.createdAt,
+                updatedAt: userData.updatedAt
+            }
+        };
+
+        // Include seller data if user has seller role
+        if (userData.role === 'seller') {
+            const Seller = (await import("../../database/models/seller.model")).default;
+            const seller = await Seller.findOne({ userId: req.user?.id });
+            if (seller) {
+                response.seller = seller;
+            }
+        }
+
+        return res.status(200).json(response);
     } catch (error: any) {
         console.error("Get current user error:", error);
         return res.status(500).json({

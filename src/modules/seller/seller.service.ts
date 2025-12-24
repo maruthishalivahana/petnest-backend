@@ -55,7 +55,9 @@ export class SellerService {
                 verificationNotes: undefined,
             };
 
+            // Create seller request
             const newSellerRequest = await this.sellerRepo.createSellerRequest(fullRequestData as any);
+
             return newSellerRequest;
         } catch (error) {
             throw error;
@@ -93,8 +95,15 @@ export class SellerService {
             throw new Error("Admin cannot set seller request to pending.");
         }
 
-        const updatedRequest = await this.sellerRepo.updateSellerStatus(sellerRequestId, status, notes);
-        return updatedRequest;
+        // Update seller status
+        const updatedSeller = await this.sellerRepo.updateSellerStatus(sellerRequestId, status, notes);
+
+        // If verified, update user role to seller
+        if (status === "verified" && updatedSeller) {
+            await this.sellerRepo.updateUserRoleToSeller(String(updatedSeller.userId));
+        }
+
+        return updatedSeller;
     }
 
     async getPendingSellerRequests() {
@@ -121,38 +130,27 @@ export class SellerService {
         return await this.sellerRepo.findAllVerifiedSellers();
     }
 
-    // ============= NEW DUAL-MODE SELLER METHODS =============
+    async getSellerDetails(sellerId: string) {
+        const seller = await this.sellerRepo.findSellerById(sellerId);
 
-    async enableSellerMode(userId: string) {
-        return await this.sellerRepo.enableSellerMode(userId);
+        if (!seller) {
+            throw new Error("Seller not found");
+        }
+
+        if (seller.status !== "verified") {
+            throw new Error("Seller is not verified");
+        }
+
+        return seller;
     }
 
-    async uploadSellerDocuments(userId: string, documents: string[]) {
-        return await this.sellerRepo.uploadSellerDocuments(userId, documents);
-    }
+    async getMySellerProfile(userId: string) {
+        const seller = await this.sellerRepo.findSellerByUserId(userId);
 
-    async getSellerVerificationStatus(userId: string) {
-        return await this.sellerRepo.getSellerVerificationStatus(userId);
-    }
+        if (!seller) {
+            throw new Error("Seller profile not found");
+        }
 
-    async getSellerAnalytics(userId: string) {
-        return await this.sellerRepo.getSellerAnalytics(userId);
-    }
-
-    async updateSellerAnalytics(userId: string, analyticsUpdate: {
-        totalViews?: number;
-        totalClicks?: number;
-        totalMessages?: number;
-    }) {
-        return await this.sellerRepo.updateSellerAnalytics(userId, analyticsUpdate);
-    }
-
-    // Admin methods for dual-mode seller verification
-    async adminUpdateSellerVerification(userId: string, status: 'pending' | 'verified' | 'rejected', notes?: string) {
-        return await this.sellerRepo.adminUpdateSellerVerification(userId, status, notes);
-    }
-
-    async getAllDualModeSellers() {
-        return await this.sellerRepo.getAllDualModeSellers();
+        return seller;
     }
 }

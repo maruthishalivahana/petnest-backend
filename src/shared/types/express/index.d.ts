@@ -5,6 +5,7 @@ declare global {
         interface Request {
             user?: {
                 id: string;
+                // Role: buyer, seller, or admin
                 role: "buyer" | "seller" | "admin";
             };
             body: any;

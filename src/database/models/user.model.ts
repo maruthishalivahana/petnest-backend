@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IUser extends Document {
     role: "buyer" | "seller" | "admin";
@@ -14,19 +14,6 @@ export interface IUser extends Document {
     isVerified: boolean; // Track email verification status
     preferences?: Record<string, any>;
     isBanned: boolean;
-
-    // Dual-mode seller fields (backward compatible)
-    isSellerModeEnabled: boolean;
-    sellerInfo?: {
-        verificationStatus: 'pending' | 'verified' | 'rejected';
-        documents?: string[];
-        whatsappNumber?: string;
-        analytics?: {
-            totalViews?: number;
-            totalClicks?: number;
-            totalMessages?: number;
-        };
-    };
 
     createdAt: Date;
     updatedAt: Date;
@@ -54,31 +41,6 @@ const UserSchema: Schema<IUser> = new Schema(
         isVerified: {
             type: Boolean,
             default: false // Users start unverified
-        },
-
-        // Dual-mode seller fields with safe defaults
-        isSellerModeEnabled: {
-            type: Boolean,
-            default: false
-        },
-        sellerInfo: {
-            verificationStatus: {
-                type: String,
-                enum: ['pending', 'verified', 'rejected'],
-                default: 'pending'
-            },
-            documents: {
-                type: [String],
-                default: []
-            },
-            whatsappNumber: {
-                type: String
-            },
-            analytics: {
-                totalViews: { type: Number, default: 0 },
-                totalClicks: { type: Number, default: 0 },
-                totalMessages: { type: Number, default: 0 }
-            }
         },
 
         createdAt: { type: Date, default: Date.now },

@@ -25,7 +25,7 @@ export class UserRepository {
         );
     }
 
-    async findUsersByRole(role: "buyer" | "seller" | "admin") {
+    async findUsersByRole(role: "buyer" | "admin") {
         return await User.find({ role });
     }
 

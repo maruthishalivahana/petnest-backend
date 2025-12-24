@@ -163,4 +163,10 @@ export class AuthService {
     async getUserById(userId: string) {
         return await this.authRepo.findUserById(userId);
     }
+
+    // ✅ NEW: Get user with seller data populated
+    // Used by /me endpoint to return complete user + seller profile
+    async getUserByIdWithSeller(userId: string) {
+        return await this.authRepo.findUserByIdWithSeller(userId);
+    }
 }

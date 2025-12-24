@@ -4,6 +4,7 @@ import express from 'express';
 import connectDB from './config/database.js';
 import { authRouter } from './routes/user.routes.js';
 import { buyerRouter } from './routes/buyer.routes.js';
+import { sellerRourter } from './routes/seller.routes.js';
 
 dotenv.config();
 const app = express();
@@ -21,6 +22,7 @@ app.use(cors({
 app.use(express.json());
 app.use('/v1/api/auth', authRouter);
 app.use('/v1/api/buyer', buyerRouter);
+app.use('/v1/api/seller', sellerRourter);
 const PORT = process.env.PORT || 8080;
 const startServer = async () => {
     try {

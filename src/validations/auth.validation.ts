@@ -9,7 +9,9 @@ export const SignupSchema = z.object({
         .regex(/[a-z]/, "password must contain at least one lowercase letter")
         .regex(/[0-9]/, "password must contain at least one number")
         .regex(/[@$!%*?&]/, "password must contain at least one special character"),
-    role: z.enum(["buyer", "seller", "admin"], "role must be either buyer, seller or admin"),
+    // ✅ Role is now "buyer" or "admin" only - seller is a capability, not a role
+    // Users enable seller mode separately after registration
+    role: z.enum(["buyer", "admin"], "role must be either buyer or admin"),
     isVerified: z.boolean().optional().default(false)
 })
 

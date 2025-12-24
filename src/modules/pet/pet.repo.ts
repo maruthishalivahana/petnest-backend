@@ -48,6 +48,23 @@ export class PetRepository {
             throw new Error("Error fetching pets by user ID: " + (error as Error).message);
         }
     }
+    async countPetsByUserId(userId: string) {
+        try {
+            const sellerProfile = await Seller.findOne({ userId });
+
+            if (!sellerProfile) {
+                return 0;
+            }
+
+            return await Pet.countDocuments({ sellerId: sellerProfile._id });
+        } catch (error) {
+            console.error("Error counting pets:", error);
+            throw new Error(
+                "Error counting pets: " + (error as Error).message
+            );
+        }
+    }
+
 
     async updatePetStatus(petId: string, status: string) {
         try {

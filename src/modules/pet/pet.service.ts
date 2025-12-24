@@ -99,6 +99,11 @@ export class PetService {
         return pets;
     }
 
+    async countPetsBySeller(userId: string) {
+        const count = await this.petRepo.countPetsByUserId(userId);
+        return count;
+    }
+
     async getAllPets() {
         return await this.petRepo.findAllPets();
     }

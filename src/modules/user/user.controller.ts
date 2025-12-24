@@ -104,13 +104,13 @@ export const getUsersByRoleController = async (req: Request, res: Response) => {
     try {
         const { role } = req.params;
 
-        if (!role || !["buyer", "seller", "admin"].includes(role)) {
+        if (!role || !["buyer", "admin"].includes(role)) {
             return res.status(400).json({
-                message: "Valid role is required (buyer, seller, or admin)"
+                message: "Valid role is required (buyer or admin)"
             });
         }
 
-        const users = await userService.getUsersByRole(role as "buyer" | "seller" | "admin");
+        const users = await userService.getUsersByRole(role as "buyer" | "admin");
 
         return res.status(200).json({
             message: `${role}s fetched successfully`,
