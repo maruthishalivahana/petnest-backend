@@ -39,15 +39,23 @@ export const requireRole = (roles: ("buyer" | "seller" | "admin")[]) => {
     };
 };
 
-// Middleware to check if seller mode is enabled and verified (for dual-mode system)
+// Middleware to check if seller is verified
 export const requireSellerVerified = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user.id) {
             return res.status(403).json({ message: "Access denied" });
         }
 
-        // Import User model dynamically to avoid circular dependency
+        // Check if user has seller role
+        if (req.user.role !== 'seller') {
+            return res.status(403).json({
+                message: "Access denied. Seller role required."
+            });
+        }
+
+        // Import models dynamically to avoid circular dependency
         const User = (await import("../../database/models/user.model")).default;
+        const Seller = (await import("../../database/models/seller.model")).default;
 
         const user = await User.findById(req.user.id);
 
@@ -55,18 +63,19 @@ export const requireSellerVerified = async (req: Request, res: Response, next: N
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Check if seller mode is enabled
-        if (!user.isSellerModeEnabled) {
-            return res.status(403).json({
-                message: "Seller mode is not enabled. Please enable seller mode first."
+        // Find seller profile by userId
+        const seller = await Seller.findOne({ userId: req.user.id }).select('status');
+
+        if (!seller) {
+            return res.status(404).json({
+                message: "Seller profile not found."
             });
         }
 
-        // Check if seller is verified
-        if (user.sellerInfo?.verificationStatus !== 'verified') {
+        if (seller.status !== 'verified') {
             return res.status(403).json({
                 message: "Your seller account is not verified yet. Please complete verification first.",
-                verificationStatus: user.sellerInfo?.verificationStatus || 'pending'
+                verificationStatus: seller.status
             });
         }
 

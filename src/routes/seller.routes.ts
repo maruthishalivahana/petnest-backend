@@ -4,92 +4,20 @@ import { documentUpload, uploadPet } from "../shared/middlewares/upload";
 import { handleMulterErrors } from "../shared/middlewares/uploadErrors";
 import {
     SellerFromRequestController,
-    enableSellerModeController,
-    uploadSellerDocumentsController,
-    getSellerVerificationStatusController,
-    getSellerAnalyticsController
+    getSellerDetailsController,
+    getMySellerProfileController
 } from "../modules/seller";
 import {
     addPetController,
     getPetsBySellerController,
     deletePetController,
-    UpdatePetController
+    UpdatePetController,
+    getPetCountBySellerController
 } from "../modules/pet";
 
 export const sellerRouter = express.Router();
 
-// ============= NEW DUAL-MODE SELLER ENDPOINTS (Backward Compatible) =============
-
-// Enable seller mode for a user (buyer can toggle to seller)
-sellerRouter.post(
-    "/enable",
-    verifyToken,
-    enableSellerModeController
-);
-
-// Upload verification documents
-const uploadDocFields = documentUpload.fields([
-    { name: 'idProof', maxCount: 1 },
-    { name: 'certificate', maxCount: 1 },
-    { name: 'shopImage', maxCount: 1 }
-]);
-
-sellerRouter.post(
-    "/upload-documents",
-    verifyToken,
-    handleMulterErrors(uploadDocFields),
-    uploadSellerDocumentsController
-);
-
-// Get seller verification status
-sellerRouter.get(
-    "/verification-status",
-    verifyToken,
-    getSellerVerificationStatusController
-);
-
-// Get seller analytics
-sellerRouter.get(
-    "/analytics",
-    verifyToken,
-    requireSellerVerified,
-    getSellerAnalyticsController
-);
-
-// Create new listing (requires verified seller)
-sellerRouter.post(
-    "/listings",
-    verifyToken,
-    requireSellerVerified,
-    uploadPet.array('images', 3),
-    addPetController
-);
-
-// Update listing
-sellerRouter.put(
-    "/listings/:petId",
-    verifyToken,
-    requireSellerVerified,
-    UpdatePetController
-);
-
-// Delete listing
-sellerRouter.delete(
-    "/listings/:petId",
-    verifyToken,
-    requireSellerVerified,
-    deletePetController
-);
-
-// Get all seller listings
-sellerRouter.get(
-    "/listings",
-    verifyToken,
-    requireSellerVerified,
-    getPetsBySellerController
-);
-
-// ============= EXISTING SELLER VERIFICATION REQUEST (Keep for backward compatibility) =============
+// ============= SELLER VERIFICATION REQUEST =============
 // Multer upload configuration for seller request documents
 const uploadFields = documentUpload.fields([
     { name: 'idProof', maxCount: 1 },
@@ -97,30 +25,37 @@ const uploadFields = documentUpload.fields([
     { name: 'shopImage', maxCount: 1 }
 ]);
 
-// Submit seller verification request (OLD FLOW - Keep intact)
+// Submit seller verification request (or re-submit after rejection)
+// Any authenticated user can apply to become a seller
 sellerRouter.post(
     "/request",
     verifyToken,
-    requireRole(["seller"]),
     handleMulterErrors(uploadFields),
     SellerFromRequestController
 );
 
-// ============= PET MANAGEMENT (OLD FLOW - Keep intact) =============
+// ============= PET MANAGEMENT =============
 // Add a new pet
 sellerRouter.post(
     "/pet",
     verifyToken,
-    requireRole(["seller"]),
+    requireSellerVerified,
     uploadPet.array('images', 3),
     addPetController
+);
+
+sellerRouter.get(
+    "/pet-count",
+    verifyToken,
+    requireSellerVerified,
+    getPetCountBySellerController
 );
 
 // Get all pets by seller
 sellerRouter.get(
     "/pets",
     verifyToken,
-    requireRole(["seller"]),
+    requireSellerVerified,
     getPetsBySellerController
 );
 
@@ -128,7 +63,7 @@ sellerRouter.get(
 sellerRouter.delete(
     "/pet/:petId",
     verifyToken,
-    requireRole(["seller"]),
+    requireSellerVerified,
     deletePetController
 );
 
@@ -136,6 +71,21 @@ sellerRouter.delete(
 sellerRouter.patch(
     "/pet/:petId",
     verifyToken,
-    requireRole(["seller"]),
+    requireSellerVerified,
     UpdatePetController
+);
+
+// ============= SELLER PROFILE =============
+// Get seller details by seller ID (public route)
+sellerRouter.get(
+    "/details/:sellerId",
+    getSellerDetailsController
+);
+
+// Get authenticated seller's own profile
+sellerRouter.get(
+    "/profile",
+    verifyToken,
+    requireSellerVerified,
+    getMySellerProfileController
 );

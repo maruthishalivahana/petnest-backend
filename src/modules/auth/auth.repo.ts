@@ -10,6 +10,15 @@ export class AuthRepository {
         return await User.findById(userId);
     }
 
+    // ✅ NEW: Fetch user with seller data populated (for /me endpoint)
+    // Returns user with seller profile if sellerId exists
+    async findUserByIdWithSeller(userId: string) {
+        return await User.findById(userId).populate({
+            path: 'sellerId',
+            select: 'brandName logoUrl bio whatsappNumber location documents status verificationNotes verificationDate analytics'
+        });
+    }
+
     async createUser(userData: Partial<IUser>) {
         const newUser = new User(userData);
         return await newUser.save();

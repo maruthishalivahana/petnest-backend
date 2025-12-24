@@ -47,7 +47,7 @@ export class UserService {
         };
     }
 
-    async getUsersByRole(role: "buyer" | "seller" | "admin") {
+    async getUsersByRole(role: "buyer" | "admin") {
         const users = await this.userRepo.findUsersByRole(role);
 
         if (!users || users.length === 0) {

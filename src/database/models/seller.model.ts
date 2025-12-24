@@ -29,11 +29,14 @@ export interface ISeller extends Document {
 }
 
 const sellerSchema: Schema<ISeller> = new Schema({
+    // ✅ SINGLE SOURCE OF TRUTH: Each user can have only ONE seller profile
+    // This enforces data integrity at the database level
     userId: {
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
-        index: true
+        unique: true,  // ✅ Enforces one seller per user
+        index: true    // ✅ Optimizes lookups
     },
     brandName: {
         type: String,

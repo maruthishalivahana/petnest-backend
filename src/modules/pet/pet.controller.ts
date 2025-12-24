@@ -92,6 +92,30 @@ export const getPetsBySellerController = async (req: Request, res: Response) => 
     }
 };
 
+export const getPetCountBySellerController = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+        const petCount = await petService.countPetsBySeller(userId);
+
+        return res.status(200).json({
+            message: "Pet count fetched successfully",
+            count: petCount
+        });
+    }
+    catch (error: any) {
+        console.error("Error fetching pet count by seller:", error);
+        return res.status(500).json({
+            message: "Error fetching pet count by seller",
+            error: error.message
+        });
+    }
+};
+
 export const deletePetController = async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
@@ -254,5 +278,3 @@ export const updatePetStatusController = async (req: Request, res: Response) => 
         });
     }
 };
-
-

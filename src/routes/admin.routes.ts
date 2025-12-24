@@ -21,9 +21,7 @@ import {
 import {
     getAllPendingRequestsController,
     verifySellerRequestController,
-    getAllVerifiedSellersController,
-    adminUpdateSellerVerificationController,
-    adminGetAllDualModeSellerRequestsController
+    getAllVerifiedSellersController
 } from "../modules/seller";
 import {
     addSpeciesController,
@@ -119,23 +117,6 @@ adminRouter.put(
     verifyToken,
     requireRole(['admin']),
     verifySellerRequestController
-);
-
-// ============= DUAL-MODE SELLER MANAGEMENT (NEW) =============
-// Get all dual-mode seller requests
-adminRouter.get(
-    '/dual-mode-sellers',
-    verifyToken,
-    requireRole(['admin']),
-    adminGetAllDualModeSellerRequestsController
-);
-
-// Update dual-mode seller verification status
-adminRouter.put(
-    '/dual-mode-sellers/:userId/verify',
-    verifyToken,
-    requireRole(['admin']),
-    adminUpdateSellerVerificationController
 );
 
 // ============= SPECIES MANAGEMENT =============
