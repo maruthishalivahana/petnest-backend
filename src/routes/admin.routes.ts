@@ -165,7 +165,6 @@ adminRouter.post(
 adminRouter.get(
     '/breeds',
     verifyToken,
-    requireRole(['admin']),
     getAllBreedsController
 );
 

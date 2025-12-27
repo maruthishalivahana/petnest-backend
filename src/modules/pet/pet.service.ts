@@ -1,5 +1,5 @@
 import { PetRepository } from "./pet.repo";
-import { PetType, PetValidationSchema } from "../../validations/pet.validation";
+import { PetListingType, UpdatePetListingType } from "../../validations/petListing.validation";
 import { BreedRepository } from "../breed/breed.repo";
 import { IPet } from "../../database/models/pet.model";
 import Seller from "../../database/models/seller.model";
@@ -16,13 +16,7 @@ export class PetService {
         this.sellerRepo = new SellerRepository();
     }
 
-    async addPet(petData: PetType & { userId: string }): Promise<IPet> {
-        // Validate pet data
-        const parseResult = PetValidationSchema.safeParse(petData);
-        if (!parseResult.success) {
-            throw parseResult.error;
-        }
-
+    async addPet(petData: PetListingType & { userId: string }): Promise<IPet> {
         // Validate user ID is provided (from JWT token)
         if (!petData.userId) {
             throw new Error("User ID is required");
@@ -54,19 +48,20 @@ export class PetService {
             default:
                 throw new Error("Invalid seller account status. Please contact support.");
         }
+
         const bannedSeller = await this.sellerRepo.findSellerByUserIdSimple(petData.userId);
         if (bannedSeller?.userId && (bannedSeller.userId as any).isBanned) {
             throw new Error("Your seller account has been banned. You cannot add pets.");
         }
 
         // Validate images
-        const imageUrls = parseResult.data.images;
+        const imageUrls = petData.images;
         if (!imageUrls || imageUrls.length === 0) {
             throw new Error("At least one image is required");
         }
 
         // Create pet payload with breedId from the breed lookup
-        const { breedName: userBreedName, ...restData } = parseResult.data;
+        const { breedName: userBreedName, ...restData } = petData;
 
         // Extract species name from populated breed
         const speciesName = (breed.species as any)?.speciesName || String(breed.species);
@@ -162,7 +157,7 @@ export class PetService {
         return deletedPet;
     }
 
-    async updatePet(petId: string, updateData: Partial<PetType>, userId: string) {
+    async updatePet(petId: string, updateData: Partial<UpdatePetListingType>, userId: string) {
         // Find pet and verify ownership
         const pet = await this.petRepo.findPetById(petId);
 

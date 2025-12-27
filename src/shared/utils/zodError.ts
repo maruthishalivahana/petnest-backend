@@ -14,3 +14,10 @@ export const zodErrorFormatter = (error: ZodError) => {
         help: 'Ensure all fields are valid (e.g. name: string, email: valid email, password: strong password).'
     };
 }
+
+export const formatZodError = (error: ZodError) => {
+    return error.issues.map((err) => ({
+        field: err.path.join('.') || 'unknown',
+        message: err.message,
+    }));
+}
