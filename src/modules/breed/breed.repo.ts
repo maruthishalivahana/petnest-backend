@@ -23,7 +23,8 @@ export class BreedRepository {
 
     async findAllBreeds() {
         try {
-            return await Breed.find().populate('species', "speciesName scientificName category allowedForTrade");
+            // Only return the name to keep the payload small for listing
+            return await Breed.find().select('name').sort({ name: 1 }).lean();
         } catch (error: any) {
             console.error("Error populating breeds:", error);
             throw new Error("Error populating breeds: " + error.message);
