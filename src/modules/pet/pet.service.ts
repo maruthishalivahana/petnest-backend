@@ -48,7 +48,7 @@ export class PetService {
             default:
                 throw new Error("Invalid seller account status. Please contact support.");
         }
-        
+
         const bannedSeller = await this.sellerRepo.findSellerByUserIdSimple(petData.userId);
         if (bannedSeller?.userId && (bannedSeller.userId as any).isBanned) {
             throw new Error("Your seller account has been banned. You cannot add pets.");
