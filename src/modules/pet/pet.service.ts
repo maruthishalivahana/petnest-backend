@@ -180,4 +180,84 @@ export class PetService {
         const updatedPet = await this.petRepo.updatePet(petId, updateData as any);
         return updatedPet;
     }
+
+    // ============= FEATURED PET OPERATIONS =============
+    async requestFeaturedStatus(petId: string, userId: string) {
+        // Find pet and verify ownership
+        const pet = await this.petRepo.findPetById(petId);
+
+        if (!pet) {
+            throw new Error("Pet not found");
+        }
+
+        // Get seller profile to verify ownership
+        const sellerProfile = await Seller.findOne({ userId: userId });
+
+        if (!sellerProfile) {
+            throw new Error("Seller profile not found");
+        }
+
+        // Verify the pet belongs to this seller
+        if (String(pet.sellerId) !== String(sellerProfile._id)) {
+            throw new Error("Access denied - you can only request featured status for your own pets");
+        }
+
+        // Check if pet is verified
+        if (!pet.isVerified) {
+            throw new Error("Only verified pets can be featured. Please wait for admin verification.");
+        }
+
+        // Check if already has a pending or active request
+        if (pet.featuredRequest?.status === 'pending') {
+            throw new Error("A featured request is already pending for this pet");
+        }
+
+        if (pet.featuredRequest?.status === 'approved') {
+            const now = new Date();
+            if (pet.featuredRequest.expiresAt && pet.featuredRequest.expiresAt > now) {
+                throw new Error("This pet is already featured and active");
+            }
+        }
+
+        const updatedPet = await this.petRepo.requestFeatured(petId);
+        return updatedPet;
+    }
+
+    async getPendingFeaturedRequests() {
+        return await this.petRepo.findPendingFeaturedRequests();
+    }
+
+    async approveFeaturedRequest(petId: string, adminId: string) {
+        const pet = await this.petRepo.findPetById(petId);
+
+        if (!pet) {
+            throw new Error("Pet not found");
+        }
+
+        if (pet.featuredRequest?.status !== 'pending') {
+            throw new Error("No pending featured request found for this pet");
+        }
+
+        const updatedPet = await this.petRepo.approveFeatured(petId, adminId);
+        return updatedPet;
+    }
+
+    async rejectFeaturedRequest(petId: string) {
+        const pet = await this.petRepo.findPetById(petId);
+
+        if (!pet) {
+            throw new Error("Pet not found");
+        }
+
+        if (pet.featuredRequest?.status !== 'pending') {
+            throw new Error("No pending featured request found for this pet");
+        }
+
+        const updatedPet = await this.petRepo.rejectFeatured(petId);
+        return updatedPet;
+    }
+
+    async getFeaturedPets() {
+        return await this.petRepo.findActiveFeaturedPets();
+    }
 }
