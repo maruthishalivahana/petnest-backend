@@ -23,8 +23,11 @@ export interface IPet extends Document {
     isVerified: boolean;
     featuredRequest?: {
         isRequested: boolean;
+        status?: 'pending' | 'approved' | 'rejected' | null;
+        requestedAt?: Date;
         approvedBy?: Types.ObjectId;
         approvedAt?: Date;
+        expiresAt?: Date;
     };
     createdAt: Date;
     updatedAt: Date;
@@ -106,11 +109,22 @@ const PetSchema: Schema<IPet> = new Schema(
                 type: Boolean,
                 default: false
             },
+            status: {
+                type: String,
+                enum: ['pending', 'approved', 'rejected'],
+                default: null
+            },
+            requestedAt: {
+                type: Date
+            },
             approvedBy: {
                 type: Schema.Types.ObjectId,
                 ref: 'User'
             },
             approvedAt: {
+                type: Date
+            },
+            expiresAt: {
                 type: Date
             }
         },

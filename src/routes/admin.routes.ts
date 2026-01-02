@@ -7,7 +7,18 @@ import {
     getUsersByRoleController,
     banUserController,
     unbanUserController,
-    changeAdStatusController
+    changeAdStatusController,
+    // Admin Dashboard Controllers
+    getSellerVerificationStatsController,
+    getSellersByStatusController,
+    getPetVerificationStatsController,
+    getPetsByVerificationStatusController,
+    getUserManagementStatsController,
+    getFilteredUsersController,
+    getUserDetailsController,
+    // Analytics Controllers
+    getSpeciesAnalyticsController,
+    getBreedsAnalyticsController
 } from "../modules/user";
 import {
     getAdByIdController,
@@ -37,13 +48,86 @@ import {
 } from "../modules/breed";
 import {
     updatePetStatusController,
-    getAllnotVerifiedPetsController
+    getAllnotVerifiedPetsController,
+    getPendingFeaturedRequestsController,
+    approveFeaturedRequestController,
+    rejectFeaturedRequestController
 } from "../modules/pet";
 import { getAllAdvertisementsController, getAllPendingAdvertisementsController } from "../modules/user";
 import { createAdListingController } from "../modules/user";
 import { uploadAd } from "@shared/middlewares/upload";
 
 export const adminRouter = express.Router();
+
+// ============= DEBUG ROUTE (Remove after debugging) =============
+// Check current user's role
+adminRouter.get(
+    '/debug/check-role',
+    verifyToken,
+    (req, res) => {
+        res.json({
+            user: req.user,
+            message: 'If you can see this, your token is valid. Check the role field.'
+        });
+    }
+);
+
+// ============= DASHBOARD STATISTICS =============
+// Get seller verification statistics
+adminRouter.get(
+    '/dashboard/seller-verification-stats',
+    verifyToken,
+    requireRole(['admin']),
+    getSellerVerificationStatsController
+);
+
+// Get sellers by status (pending/verified/rejected)
+adminRouter.get(
+    '/dashboard/sellers/:status',
+    verifyToken,
+    requireRole(['admin']),
+    getSellersByStatusController
+);
+
+// Get pet verification statistics
+adminRouter.get(
+    '/dashboard/pet-verification-stats',
+    verifyToken,
+    requireRole(['admin']),
+    getPetVerificationStatsController
+);
+
+// Get pets by verification status (pending/approved/rejected)
+adminRouter.get(
+    '/dashboard/pets/:status',
+    verifyToken,
+    requireRole(['admin']),
+    getPetsByVerificationStatusController
+);
+
+// Get user management statistics
+adminRouter.get(
+    '/dashboard/user-management-stats',
+    verifyToken,
+    requireRole(['admin']),
+    getUserManagementStatsController
+);
+
+// Get filtered users with search, pagination
+adminRouter.get(
+    '/dashboard/users',
+    verifyToken,
+    requireRole(['admin']),
+    getFilteredUsersController
+);
+
+// Get detailed user info
+adminRouter.get(
+    '/dashboard/users/:userId',
+    verifyToken,
+    requireRole(['admin']),
+    getUserDetailsController
+);
 
 // ============= USER MANAGEMENT =============
 // Get all users
@@ -136,6 +220,14 @@ adminRouter.get(
     getAllSpeciesController
 );
 
+// Get species analytics (must come BEFORE /:id route)
+adminRouter.get(
+    '/species/analytics',
+    verifyToken,
+    requireRole(['admin']),
+    getSpeciesAnalyticsController
+);
+
 // Get species by ID
 adminRouter.get(
     '/species/:id',
@@ -168,6 +260,14 @@ adminRouter.get(
     getAllBreedsController
 );
 
+// Get breeds analytics (must come BEFORE /:id route)
+adminRouter.get(
+    '/breeds/analytics',
+    verifyToken,
+    requireRole(['admin']),
+    getBreedsAnalyticsController
+);
+
 // Get breed by ID
 adminRouter.get(
     '/breeds/:id',
@@ -191,6 +291,30 @@ adminRouter.get(
     verifyToken,
     requireRole(['admin']),
     getAllnotVerifiedPetsController
+);
+
+// Get pending featured requests
+adminRouter.get(
+    '/pets/featured-requests',
+    verifyToken,
+    requireRole(['admin']),
+    getPendingFeaturedRequestsController
+);
+
+// Approve featured request
+adminRouter.patch(
+    '/pets/:petId/featured/approve',
+    verifyToken,
+    requireRole(['admin']),
+    approveFeaturedRequestController
+);
+
+// Reject featured request
+adminRouter.patch(
+    '/pets/:petId/featured/reject',
+    verifyToken,
+    requireRole(['admin']),
+    rejectFeaturedRequestController
 );
 
 // Update pet verification status

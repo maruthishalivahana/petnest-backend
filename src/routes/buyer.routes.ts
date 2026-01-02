@@ -6,6 +6,7 @@ import {
     getBuyerProfileByIdController
 } from "../modules/buyer";
 import { getUserBreedController } from "../modules/breed";
+import { getFeaturedPetsController } from "../modules/pet";
 import {
     addToWishlistController,
     getAllPetsController,
@@ -80,6 +81,14 @@ buyerRouter.get(
 );
 
 // ============= PET BROWSING =============
+// Get featured pets (public-facing, but requires authentication)
+buyerRouter.get(
+    '/pets/featured',
+    verifyToken,
+    requireRole(['buyer']),
+    getFeaturedPetsController
+);
+
 // Get all pets
 buyerRouter.get(
     '/pets',

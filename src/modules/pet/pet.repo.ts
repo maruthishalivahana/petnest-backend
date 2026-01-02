@@ -131,4 +131,87 @@ export class PetRepository {
             throw new Error("Error updating pet: " + (error as Error).message);
         }
     }
+
+    // ============= FEATURED PET OPERATIONS =============
+    async requestFeatured(petId: string) {
+        try {
+            return await Pet.findByIdAndUpdate(
+                petId,
+                {
+                    'featuredRequest.isRequested': true,
+                    'featuredRequest.status': 'pending',
+                    'featuredRequest.requestedAt': new Date()
+                },
+                { new: true }
+            );
+        } catch (error) {
+            console.error("Error requesting featured status:", error);
+            throw new Error("Error requesting featured status: " + (error as Error).message);
+        }
+    }
+
+    async findPendingFeaturedRequests() {
+        try {
+            return await Pet.find({ 'featuredRequest.status': 'pending' })
+                .populate('sellerId', 'brandName userId')
+                .populate('breedId', 'name')
+                .sort({ 'featuredRequest.requestedAt': -1 });
+        } catch (error) {
+            console.error("Error fetching pending featured requests:", error);
+            throw new Error("Error fetching pending featured requests: " + (error as Error).message);
+        }
+    }
+
+    async approveFeatured(petId: string, adminId: string) {
+        try {
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
+
+            return await Pet.findByIdAndUpdate(
+                petId,
+                {
+                    'featuredRequest.status': 'approved',
+                    'featuredRequest.approvedBy': adminId,
+                    'featuredRequest.approvedAt': new Date(),
+                    'featuredRequest.expiresAt': expiresAt
+                },
+                { new: true }
+            );
+        } catch (error) {
+            console.error("Error approving featured request:", error);
+            throw new Error("Error approving featured request: " + (error as Error).message);
+        }
+    }
+
+    async rejectFeatured(petId: string) {
+        try {
+            return await Pet.findByIdAndUpdate(
+                petId,
+                {
+                    'featuredRequest.status': 'rejected'
+                },
+                { new: true }
+            );
+        } catch (error) {
+            console.error("Error rejecting featured request:", error);
+            throw new Error("Error rejecting featured request: " + (error as Error).message);
+        }
+    }
+
+    async findActiveFeaturedPets() {
+        try {
+            const now = new Date();
+            return await Pet.find({
+                'featuredRequest.status': 'approved',
+                'featuredRequest.expiresAt': { $gt: now },
+                isVerified: true
+            })
+                .populate('sellerId', 'brandName logoUrl')
+                .populate('breedId', 'name')
+                .sort({ 'featuredRequest.approvedAt': -1 });
+        } catch (error) {
+            console.error("Error fetching featured pets:", error);
+            throw new Error("Error fetching featured pets: " + (error as Error).message);
+        }
+    }
 }

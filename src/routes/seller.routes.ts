@@ -12,7 +12,8 @@ import {
     getPetsBySellerController,
     deletePetController,
     UpdatePetController,
-    getPetCountBySellerController
+    getPetCountBySellerController,
+    requestFeaturedStatusController
 } from "../modules/pet";
 
 export const sellerRouter = express.Router();
@@ -73,6 +74,15 @@ sellerRouter.patch(
     verifyToken,
     requireSellerVerified,
     UpdatePetController
+);
+
+// ============= FEATURED PET REQUESTS =============
+// Request featured status for a pet
+sellerRouter.post(
+    "/pets/:petId/featured-request",
+    verifyToken,
+    requireSellerVerified,
+    requestFeaturedStatusController
 );
 
 // ============= SELLER PROFILE =============

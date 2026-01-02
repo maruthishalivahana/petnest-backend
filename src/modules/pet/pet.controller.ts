@@ -278,3 +278,193 @@ export const updatePetStatusController = async (req: Request, res: Response) => 
         });
     }
 };
+
+// ============= FEATURED PET CONTROLLERS =============
+
+// Seller - Request Featured Status
+export const requestFeaturedStatusController = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+
+        const { petId } = req.params;
+
+        if (!petId) {
+            return res.status(400).json({
+                message: "Pet ID is required"
+            });
+        }
+
+        const updatedPet = await petService.requestFeaturedStatus(petId, userId);
+
+        return res.status(200).json({
+            message: "Featured request submitted successfully. Awaiting admin approval.",
+            pet: updatedPet
+        });
+    } catch (error: any) {
+        console.error("Error requesting featured status:", error);
+
+        const errorMessage = error.message;
+
+        if (errorMessage === "Pet not found") {
+            return res.status(404).json({ message: errorMessage });
+        }
+
+        if (errorMessage.includes("Access denied") ||
+            errorMessage.includes("Only verified pets") ||
+            errorMessage.includes("already pending") ||
+            errorMessage.includes("already featured")) {
+            return res.status(400).json({ message: errorMessage });
+        }
+
+        return res.status(500).json({
+            message: "Error requesting featured status",
+            error: errorMessage
+        });
+    }
+};
+
+// Admin - Get Pending Featured Requests
+export const getPendingFeaturedRequestsController = async (req: Request, res: Response) => {
+    try {
+        const requests = await petService.getPendingFeaturedRequests();
+
+        return res.status(200).json({
+            success: true,
+            count: requests.length,
+            data: requests
+        });
+    } catch (error: any) {
+        console.error("Error fetching pending featured requests:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching pending featured requests",
+            error: error.message
+        });
+    }
+};
+
+// Admin - Approve Featured Request
+export const approveFeaturedRequestController = async (req: Request, res: Response) => {
+    try {
+        const adminId = req.user?.id;
+
+        if (!adminId) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
+
+        const { petId } = req.params;
+
+        if (!petId) {
+            return res.status(400).json({
+                message: "Pet ID is required"
+            });
+        }
+
+        const updatedPet = await petService.approveFeaturedRequest(petId, adminId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Featured request approved successfully",
+            pet: updatedPet
+        });
+    } catch (error: any) {
+        console.error("Error approving featured request:", error);
+
+        const errorMessage = error.message;
+
+        if (errorMessage === "Pet not found") {
+            return res.status(404).json({
+                success: false,
+                message: errorMessage
+            });
+        }
+
+        if (errorMessage.includes("No pending featured request")) {
+            return res.status(400).json({
+                success: false,
+                message: errorMessage
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "Error approving featured request",
+            error: errorMessage
+        });
+    }
+};
+
+// Admin - Reject Featured Request
+export const rejectFeaturedRequestController = async (req: Request, res: Response) => {
+    try {
+        const { petId } = req.params;
+
+        if (!petId) {
+            return res.status(400).json({
+                message: "Pet ID is required"
+            });
+        }
+
+        const updatedPet = await petService.rejectFeaturedRequest(petId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Featured request rejected",
+            pet: updatedPet
+        });
+    } catch (error: any) {
+        console.error("Error rejecting featured request:", error);
+
+        const errorMessage = error.message;
+
+        if (errorMessage === "Pet not found") {
+            return res.status(404).json({
+                success: false,
+                message: errorMessage
+            });
+        }
+
+        if (errorMessage.includes("No pending featured request")) {
+            return res.status(400).json({
+                success: false,
+                message: errorMessage
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "Error rejecting featured request",
+            error: errorMessage
+        });
+    }
+};
+
+// Public - Get Featured Pets
+export const getFeaturedPetsController = async (req: Request, res: Response) => {
+    try {
+        const featuredPets = await petService.getFeaturedPets();
+
+        return res.status(200).json({
+            success: true,
+            count: featuredPets.length,
+            data: featuredPets
+        });
+    } catch (error: any) {
+        console.error("Error fetching featured pets:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching featured pets",
+            error: error.message
+        });
+    }
+};
