@@ -156,12 +156,18 @@ export class BuyerRepository {
     }
 
     async searchPets(keyword?: string) {
-        const query: any = { status: 'active' };
+        const query: any = {
+            status: 'active',
+            $or: [
+                { 'featuredRequest.status': { $exists: false } },
+                { 'featuredRequest.status': { $ne: 'approved' } }
+            ]
+        };
 
         if (keyword && keyword.trim() !== '') {
             const num = Number(keyword);
 
-            const orConditions: any[] = [
+            const searchConditions: any[] = [
                 { name: { $regex: keyword, $options: 'i' } },
                 { breedName: { $regex: keyword, $options: 'i' } },
                 { 'location.city': { $regex: keyword, $options: 'i' } },
@@ -170,10 +176,20 @@ export class BuyerRepository {
             ];
 
             if (!isNaN(num)) {
-                orConditions.push({ price: num });
+                searchConditions.push({ price: num });
             }
 
-            query.$or = orConditions;
+            // Merge featured filter with search conditions using $and
+            query.$and = [
+                {
+                    $or: [
+                        { 'featuredRequest.status': { $exists: false } },
+                        { 'featuredRequest.status': { $ne: 'approved' } }
+                    ]
+                },
+                { $or: searchConditions }
+            ];
+            delete query.$or;
         }
 
         return await Pet.find(query)
@@ -183,7 +199,13 @@ export class BuyerRepository {
     }
 
     async filterpets(filters: PetFilter) {
-        const query: any = { status: 'active' };
+        const query: any = {
+            status: 'active',
+            $or: [
+                { 'featuredRequest.status': { $exists: false } },
+                { 'featuredRequest.status': { $ne: 'approved' } }
+            ]
+        };
         const { gender, age, city, state, minPrice, maxPrice, breedName } = filters
 
         if (gender) { query.gender = gender; }
