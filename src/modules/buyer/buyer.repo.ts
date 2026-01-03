@@ -22,7 +22,12 @@ export class BuyerRepository {
         );
     }
     async findAllPets() {
-        return await Pet.find({})
+        return await Pet.find({
+            $or: [
+                { 'featuredRequest.status': { $exists: false } },
+                { 'featuredRequest.status': { $ne: 'approved' } }
+            ]
+        })
             .populate({
                 path: "breedId",
                 select: "name species",
