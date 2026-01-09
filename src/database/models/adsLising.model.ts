@@ -1,50 +1,77 @@
 import { Schema, Document, model, Model, Types } from "mongoose";
 
-export interface IAdListing extends Document {
+export type AdPlacement =
+    | 'home_top_banner'
+    | 'home_sidebar'
+    | 'home_footer'
+    | 'pet_feed_inline'
+    | 'pet_mobile_sticky'
+    | 'pet_detail_below_desc'
+    | 'pet_detail_sidebar'
+    | 'blog_mid_article'
+    | 'blog_sidebar'
+    | 'dashboard_header';
+
+export type AdDevice = 'mobile' | 'desktop' | 'both';
+
+export interface IAd extends Document {
     title: string;
-    images: string[];
-    description?: string;
-    adminId: Types.ObjectId;
-    advertisementId: Types.ObjectId;
-    status: 'active' | 'inactive' | 'paused' | 'rejected' | 'expired';
-    adSpot: 'homepageBanner' | 'sidebar' | 'footer' | 'blogFeature';
+    imageUrl: string;
+    ctaText: string;
+    redirectUrl: string;
+    placement: AdPlacement;
+    device: AdDevice;
+    targetPages: string[];
     startDate: Date;
     endDate: Date;
+    impressions: number;
+    clicks: number;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
-    scheduledAt?: Date;
 }
 
-const AdListingSchema = new Schema<IAdListing>({
-    images: {
-        type: [String],
-        required: true
-    },
+const AdSchema = new Schema<IAd>({
     title: {
         type: String,
         required: true
     },
-    description: {
-        type: String
-    },
-    adminId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
+    imageUrl: {
+        type: String,
         required: true
     },
-    advertisementId: {
-        type: Schema.Types.ObjectId,
-        ref: 'AdvertisementRequests'
-    },
-    status: {
+    ctaText: {
         type: String,
-        enum: ['active', 'inactive', 'paused', 'rejected', 'expired'],
-        default: 'inactive'
-    },
-    adSpot: {
-        type: String,
-        enum: ['homepageBanner', 'sidebar', 'footer', 'blogFeature'],
         required: true
+    },
+    redirectUrl: {
+        type: String,
+        required: true
+    },
+    placement: {
+        type: String,
+        enum: [
+            'home_top_banner',
+            'home_sidebar',
+            'home_footer',
+            'pet_feed_inline',
+            'pet_mobile_sticky',
+            'pet_detail_below_desc',
+            'pet_detail_sidebar',
+            'blog_mid_article',
+            'blog_sidebar',
+            'dashboard_header'
+        ],
+        required: true
+    },
+    device: {
+        type: String,
+        enum: ['mobile', 'desktop', 'both'],
+        default: 'both'
+    },
+    targetPages: {
+        type: [String],
+        default: []
     },
     startDate: {
         type: Date,
@@ -54,11 +81,20 @@ const AdListingSchema = new Schema<IAdListing>({
         type: Date,
         required: true
     },
-    scheduledAt: {
-        type: Date
+    impressions: {
+        type: Number,
+        default: 0
+    },
+    clicks: {
+        type: Number,
+        default: 0
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 },
     { timestamps: true }
 );
 
-export const AdListing: Model<IAdListing> = model<IAdListing>('AdListings', AdListingSchema);
+export const Ad: Model<IAd> = model<IAd>('Ad', AdSchema);

@@ -1,49 +1,53 @@
-import { Document, Schema, model, Types, Model } from 'mongoose';
+import { Document, Schema, model, Model } from 'mongoose';
 
-
-export interface IAdvertisement extends Document {
+export interface IAdRequest extends Document {
     brandName: string;
-    contactEmail?: string;
+    contactEmail: string;
     contactNumber?: string;
-    adSpot: 'homepageBanner' | 'sidebar' | 'footer' | 'blogFeature';
+    requestedPlacement: string;
     message?: string;
     mediaUrl?: string;
-    isApproved: boolean;
+    status: 'pending' | 'approved' | 'rejected';
+    rejectionReason?: string;
     createdAt: Date;
     updatedAt: Date;
 }
 
-const AdvertisementSchema: Schema<IAdvertisement> = new Schema(
+const AdRequestSchema: Schema<IAdRequest> = new Schema(
     {
         brandName: {
             type: String,
             required: true
         },
         contactEmail: {
-            type: String
+            type: String,
+            required: true
         },
         contactNumber: {
             type: String
         },
-        adSpot: {
+        requestedPlacement: {
             type: String,
-            enum: ['homepageBanner', 'sidebar', 'footer', 'blogFeature'],
             required: true
-        },
-        isApproved: {
-            type: Boolean,
-            default: false
         },
         message: {
             type: String
         },
         mediaUrl: {
             type: String
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        },
+        rejectionReason: {
+            type: String
         }
     },
     { timestamps: true }
 );
 
-const Advertisement: Model<IAdvertisement> = model<IAdvertisement>('AdvertisementRequests', AdvertisementSchema);
+const AdRequest: Model<IAdRequest> = model<IAdRequest>('AdvertisementRequests', AdRequestSchema);
 
-export default Advertisement;
+export default AdRequest;
