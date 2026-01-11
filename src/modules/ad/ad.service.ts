@@ -1,5 +1,5 @@
 import { AdRepository } from './ad.repo';
-import { CreateAdDTO, UpdateAdDTO, AdQuery } from './ad.types';
+import { CreateAdDTO, UpdateAdDTO } from './ad.types';
 import { AdPlacement, AdDevice } from '@database/models/adsLising.model';
 
 export class AdService {
@@ -33,24 +33,29 @@ export class AdService {
         }
     }
 
-    async getAllAds(query: AdQuery) {
+    async getAllAds() {
         try {
-            const { data, total } = await this.repo.findAll(query);
-            const page = query.page || 1;
-            const limit = query.limit || 10;
+            const data = await this.repo.findAll();
 
             return {
                 success: true,
-                data,
-                pagination: {
-                    total,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(total / limit)
-                }
+                data
             };
         } catch (error) {
             throw new Error(`Failed to fetch ads: ${error}`);
+        }
+    }
+
+    async getActiveAds() {
+        try {
+            const data = await this.repo.findActive();
+
+            return {
+                success: true,
+                data
+            };
+        } catch (error) {
+            throw new Error(`Failed to fetch active ads: ${error}`);
         }
     }
 

@@ -50,7 +50,11 @@ export const validateBody = (schema: ZodSchema) => {
 export const validateQuery = (schema: ZodSchema) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            req.query = await schema.parseAsync(req.query) as any;
+            const validatedQuery = await schema.parseAsync(req.query);
+            // Store validated query in a custom property instead of overwriting req.query
+            (req as any).validatedQuery = validatedQuery;
+            // Also update req.query by assigning properties individually
+            Object.assign(req.query, validatedQuery);
             next();
         } catch (error) {
             if (error instanceof ZodError) {

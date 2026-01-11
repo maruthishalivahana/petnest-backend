@@ -23,19 +23,11 @@ export class AdRequestService {
 
     async getAllAdRequests(query: AdRequestQuery) {
         try {
-            const { data, total } = await this.repo.findAll(query);
-            const page = query.page || 1;
-            const limit = query.limit || 10;
+            const data = await this.repo.findAll(query);
 
             return {
                 success: true,
-                data,
-                pagination: {
-                    total,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(total / limit)
-                }
+                data
             };
         } catch (error) {
             throw new Error(`Failed to fetch ad requests: ${error}`);

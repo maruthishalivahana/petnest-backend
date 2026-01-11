@@ -19,11 +19,9 @@ export const createAdRequest = async (req: Request, res: Response) => {
 // Admin only
 export const getAllAdRequests = async (req: Request, res: Response) => {
     try {
-        const { status, page, limit } = req.query;
+        const { status } = req.query;
         const query = {
-            status: status as 'pending' | 'approved' | 'rejected' | undefined,
-            page: page ? parseInt(page as string) : undefined,
-            limit: limit ? parseInt(limit as string) : undefined
+            status: status as 'pending' | 'approved' | 'rejected' | undefined
         };
 
         const result = await adRequestService.getAllAdRequests(query);

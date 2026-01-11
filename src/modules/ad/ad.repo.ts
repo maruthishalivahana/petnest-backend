@@ -1,5 +1,5 @@
 import { Ad, IAd, AdPlacement, AdDevice } from '@database/models/adsLising.model';
-import { CreateAdDTO, UpdateAdDTO, AdQuery } from './ad.types';
+import { CreateAdDTO, UpdateAdDTO } from './ad.types';
 
 export class AdRepository {
     async create(data: CreateAdDTO): Promise<IAd> {
@@ -7,30 +7,12 @@ export class AdRepository {
         return await ad.save();
     }
 
-    async findAll(query: AdQuery): Promise<{ data: any[], total: number }> {
-        const { placement, device, isActive, page = 1, limit = 10 } = query;
-        const skip = (page - 1) * limit;
+    async findAll(): Promise<any[]> {
+        return await Ad.find({}).sort({ createdAt: -1 }).lean();
+    }
 
-        const filter: any = {};
-        if (placement) filter.placement = placement;
-        if (device) {
-            filter.$or = [
-                { device: device },
-                { device: 'both' }
-            ];
-        }
-        if (isActive !== undefined) filter.isActive = isActive;
-
-        const [data, total] = await Promise.all([
-            Ad.find(filter)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .lean(),
-            Ad.countDocuments(filter)
-        ]);
-
-        return { data, total };
+    async findActive(): Promise<any[]> {
+        return await Ad.find({ isActive: true }).sort({ createdAt: -1 }).lean();
     }
 
     async findById(id: string): Promise<IAd | null> {
@@ -88,7 +70,19 @@ export class AdRepository {
         return await Ad.find(filter).lean();
     }
 
-    async findActiveInlineFeedAds(device?: AdDevice): Promise<any[]> {
+    async findActiveInlineFeedAds(): Promise<any[]> {
+        const now = new Date();
+        const filter: any = {
+            placement: 'pet_feed_inline',
+            isActive: true,
+            startDate: { $lte: now },
+            endDate: { $gte: now }
+        };
+
+        return await Ad.find(filter).lean();
+    }
+
+    async findActiveInlineFeedAdsOld(device?: AdDevice): Promise<any[]> {
         const now = new Date();
         const filter: any = {
             placement: 'pet_feed_inline',

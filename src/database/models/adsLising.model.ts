@@ -2,15 +2,10 @@ import { Schema, Document, model, Model, Types } from "mongoose";
 
 export type AdPlacement =
     | 'home_top_banner'
-    | 'home_sidebar'
     | 'home_footer'
     | 'pet_feed_inline'
     | 'pet_mobile_sticky'
-    | 'pet_detail_below_desc'
-    | 'pet_detail_sidebar'
-    | 'blog_mid_article'
-    | 'blog_sidebar'
-    | 'dashboard_header';
+    | 'pet_detail_below_desc';
 
 export type AdDevice = 'mobile' | 'desktop' | 'both';
 
@@ -52,15 +47,10 @@ const AdSchema = new Schema<IAd>({
         type: String,
         enum: [
             'home_top_banner',
-            'home_sidebar',
             'home_footer',
             'pet_feed_inline',
             'pet_mobile_sticky',
-            'pet_detail_below_desc',
-            'pet_detail_sidebar',
-            'blog_mid_article',
-            'blog_sidebar',
-            'dashboard_header'
+            'pet_detail_below_desc'
         ],
         required: true
     },

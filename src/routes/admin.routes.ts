@@ -35,6 +35,10 @@ import {
     getAllVerifiedSellersController
 } from "../modules/seller";
 import {
+    getAllAdRequests,
+    updateAdRequestStatus
+} from "../modules/adRequest";
+import {
     addSpeciesController,
     getAllSpeciesController,
     getSpeciesByIdController,
@@ -333,19 +337,20 @@ adminRouter.get(
     requireRole(['admin']),
     getAllAdvertisementsController
 );
-// Get all pending advertisement requests
+// Get all advertisement requests (with optional status filter)
 adminRouter.get(
     '/advertisements/requests',
     verifyToken,
     requireRole(['admin']),
-    getAllPendingAdvertisementsController
+    getAllAdRequests
 );
 
+// Update ad request status (approve/reject)
 adminRouter.patch(
-    '/ad/request/:adId/:status',
+    '/advertisements/requests/:id/status',
     verifyToken,
     requireRole(['admin']),
-    updateAdvertisementStatusController
+    updateAdRequestStatus
 );
 
 adminRouter.get(

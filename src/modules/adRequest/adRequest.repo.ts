@@ -7,25 +7,13 @@ export class AdRequestRepository {
         return await adRequest.save();
     }
 
-    async findAll(query: AdRequestQuery): Promise<{ data: any[], total: number }> {
-        const { status, page = 1, limit = 10 } = query;
-        const skip = (page - 1) * limit;
-
+    async findAll(query: AdRequestQuery): Promise<any[]> {
         const filter: any = {};
-        if (status) {
-            filter.status = status;
+        if (query.status) {
+            filter.status = query.status;
         }
 
-        const [data, total] = await Promise.all([
-            AdRequest.find(filter)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .lean(),
-            AdRequest.countDocuments(filter)
-        ]);
-
-        return { data, total };
+        return await AdRequest.find(filter).sort({ createdAt: -1 }).lean();
     }
 
     async findById(id: string): Promise<IAdRequest | null> {

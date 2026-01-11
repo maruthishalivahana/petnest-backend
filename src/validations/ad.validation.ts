@@ -37,15 +37,10 @@ export const CreateAdSchema = z.object({
     redirectUrl: z.string().url('Invalid redirect URL'),
     placement: z.enum([
         'home_top_banner',
-        'home_sidebar',
         'home_footer',
         'pet_feed_inline',
         'pet_mobile_sticky',
-        'pet_detail_below_desc',
-        'pet_detail_sidebar',
-        'blog_mid_article',
-        'blog_sidebar',
-        'dashboard_header'
+        'pet_detail_below_desc'
     ], {
         required_error: 'Placement is required',
         invalid_type_error: 'Invalid placement value'
@@ -73,15 +68,10 @@ export const UpdateAdSchema = z.object({
     redirectUrl: z.string().url().optional(),
     placement: z.enum([
         'home_top_banner',
-        'home_sidebar',
         'home_footer',
         'pet_feed_inline',
         'pet_mobile_sticky',
-        'pet_detail_below_desc',
-        'pet_detail_sidebar',
-        'blog_mid_article',
-        'blog_sidebar',
-        'dashboard_header'
+        'pet_detail_below_desc'
     ]).optional(),
     device: z.enum(['mobile', 'desktop', 'both']).optional(),
     targetPages: z.array(z.string()).optional(),
@@ -105,50 +95,16 @@ export const UpdateAdSchema = z.object({
 
 // Query Validation
 export const GetAdRequestsQuerySchema = z.object({
-    status: z.enum(['pending', 'approved', 'rejected']).optional(),
-    page: z.string().regex(/^\d+$/).transform(Number).optional(),
-    limit: z.string().regex(/^\d+$/).transform(Number).optional()
-});
-
-export const GetAdsQuerySchema = z.object({
-    placement: z.enum([
-        'home_top_banner',
-        'home_sidebar',
-        'home_footer',
-        'pet_feed_inline',
-        'pet_mobile_sticky',
-        'pet_detail_below_desc',
-        'pet_detail_sidebar',
-        'blog_mid_article',
-        'blog_sidebar',
-        'dashboard_header'
-    ]).optional(),
-    device: z.enum(['mobile', 'desktop', 'both']).optional(),
-    isActive: z.enum(['true', 'false']).optional(),
-    page: z.string().regex(/^\d+$/).transform(Number).optional(),
-    limit: z.string().regex(/^\d+$/).transform(Number).optional()
+    status: z.enum(['pending', 'approved', 'rejected']).optional()
 });
 
 export const GetAdsByPlacementQuerySchema = z.object({
     placement: z.enum([
         'home_top_banner',
-        'home_sidebar',
         'home_footer',
         'pet_feed_inline',
         'pet_mobile_sticky',
-        'pet_detail_below_desc',
-        'pet_detail_sidebar',
-        'blog_mid_article',
-        'blog_sidebar',
-        'dashboard_header'
+        'pet_detail_below_desc'
     ]),
     device: z.enum(['mobile', 'desktop', 'both']).optional()
-});
-
-export const GetFeedQuerySchema = z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).optional(),
-    limit: z.string().regex(/^\d+$/).transform(Number).optional(),
-    device: z.enum(['mobile', 'desktop', 'both']).optional(),
-    species: z.string().optional(),
-    breed: z.string().optional()
 });

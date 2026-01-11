@@ -1,7 +1,6 @@
 import { FeedRepository } from './feed.repo';
 import { AdRepository } from '../ad/ad.repo';
-import { FeedQuery, FeedItem } from './feed.types';
-import { AdDevice } from '@database/models/adsLising.model';
+import { FeedItem } from './feed.types';
 
 export class FeedService {
     private feedRepo: FeedRepository;
@@ -12,15 +11,13 @@ export class FeedService {
         this.adRepo = new AdRepository();
     }
 
-    async getFeed(query: FeedQuery) {
+    async getFeed() {
         try {
-            const { page = 1, limit = 10, device } = query;
+            // Fetch all pets
+            const pets = await this.feedRepo.getPets();
 
-            // Fetch pets
-            const { data: pets, total } = await this.feedRepo.getPets(query);
-
-            // Fetch inline ads for pet feed
-            const ads = await this.adRepo.findActiveInlineFeedAds(device as AdDevice);
+            // Fetch all active inline ads for pet feed
+            const ads = await this.adRepo.findActiveInlineFeedAds();
 
             // Mix pets with ads (1 ad after every 4 pet cards)
             const feed: FeedItem[] = [];
@@ -47,13 +44,7 @@ export class FeedService {
 
             return {
                 success: true,
-                data: feed,
-                pagination: {
-                    total,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(total / limit)
-                }
+                data: feed
             };
         } catch (error) {
             throw new Error(`Failed to fetch feed: ${error}`);
