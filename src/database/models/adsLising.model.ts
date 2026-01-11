@@ -11,12 +11,14 @@ export type AdDevice = 'mobile' | 'desktop' | 'both';
 
 export interface IAd extends Document {
     title: string;
+    subtitle?: string;
+    tagline?: string;
+    brandName: string;
     imageUrl: string;
     ctaText: string;
     redirectUrl: string;
     placement: AdPlacement;
     device: AdDevice;
-    targetPages: string[];
     startDate: Date;
     endDate: Date;
     impressions: number;
@@ -28,6 +30,19 @@ export interface IAd extends Document {
 
 const AdSchema = new Schema<IAd>({
     title: {
+        type: String,
+        required: true,
+        maxlength: 60
+    },
+    subtitle: {
+        type: String,
+        maxlength: 120
+    },
+    tagline: {
+        type: String,
+        maxlength: 60
+    },
+    brandName: {
         type: String,
         required: true
     },
@@ -58,10 +73,6 @@ const AdSchema = new Schema<IAd>({
         type: String,
         enum: ['mobile', 'desktop', 'both'],
         default: 'both'
-    },
-    targetPages: {
-        type: [String],
-        default: []
     },
     startDate: {
         type: Date,

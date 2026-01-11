@@ -31,7 +31,10 @@ export const UpdateAdRequestStatusSchema = z.object({
 
 // Ad Management Validation
 export const CreateAdSchema = z.object({
-    title: z.string().min(1, 'Title is required'),
+    title: z.string().min(1, 'Title is required').max(60, 'Title must be 60 characters or less'),
+    subtitle: z.string().max(120, 'Subtitle must be 120 characters or less').optional(),
+    tagline: z.string().max(60, 'Tagline must be 60 characters or less').optional(),
+    brandName: z.string().min(1, 'Brand name is required'),
     imageUrl: z.string().url('Invalid image URL'),
     ctaText: z.string().min(1, 'CTA text is required'),
     redirectUrl: z.string().url('Invalid redirect URL'),
@@ -46,7 +49,6 @@ export const CreateAdSchema = z.object({
         invalid_type_error: 'Invalid placement value'
     }),
     device: z.enum(['mobile', 'desktop', 'both']).optional().default('both'),
-    targetPages: z.array(z.string()).optional().default([]),
     startDate: z.string().datetime('Invalid start date format').or(z.date()),
     endDate: z.string().datetime('Invalid end date format').or(z.date())
 }).refine(
@@ -62,7 +64,10 @@ export const CreateAdSchema = z.object({
 );
 
 export const UpdateAdSchema = z.object({
-    title: z.string().min(1).optional(),
+    title: z.string().min(1).max(60, 'Title must be 60 characters or less').optional(),
+    subtitle: z.string().max(120, 'Subtitle must be 120 characters or less').optional(),
+    tagline: z.string().max(60, 'Tagline must be 60 characters or less').optional(),
+    brandName: z.string().min(1, 'Brand name is required').optional(),
     imageUrl: z.string().url().optional(),
     ctaText: z.string().min(1).optional(),
     redirectUrl: z.string().url().optional(),
@@ -74,7 +79,6 @@ export const UpdateAdSchema = z.object({
         'pet_detail_below_desc'
     ]).optional(),
     device: z.enum(['mobile', 'desktop', 'both']).optional(),
-    targetPages: z.array(z.string()).optional(),
     startDate: z.string().datetime().or(z.date()).optional(),
     endDate: z.string().datetime().or(z.date()).optional(),
     isActive: z.boolean().optional()

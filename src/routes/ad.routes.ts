@@ -42,26 +42,26 @@ adRouter.post(
 
 // Get all active ads (public - for displaying on website)
 adRouter.get(
-    '/ads',
+    '/',
     getActiveAds
 );
 
 // Get ads by placement (public - for specific page placement)
 adRouter.get(
-    '/ads/placement',
+    '/placement',
     validateQuery(GetAdsByPlacementQuerySchema),
     getAdsByPlacement
 );
 
 // Track impression (public)
 adRouter.post(
-    '/ads/:id/impression',
+    '/:id/impression',
     trackImpression
 );
 
 // Track click (public)
 adRouter.post(
-    '/ads/:id/click',
+    '/:id/click',
     trackClick
 );
 
