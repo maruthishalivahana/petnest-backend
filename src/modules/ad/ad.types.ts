@@ -2,24 +2,28 @@ import { AdPlacement, AdDevice } from '@database/models/adsLising.model';
 
 export interface CreateAdDTO {
     title: string;
+    subtitle?: string;
+    tagline?: string;
+    brandName: string;
     imageUrl: string;
     ctaText: string;
     redirectUrl: string;
     placement: AdPlacement;
     device?: AdDevice;
-    targetPages?: string[];
     startDate: Date;
     endDate: Date;
 }
 
 export interface UpdateAdDTO {
     title?: string;
+    subtitle?: string;
+    tagline?: string;
+    brandName?: string;
     imageUrl?: string;
     ctaText?: string;
     redirectUrl?: string;
     placement?: AdPlacement;
     device?: AdDevice;
-    targetPages?: string[];
     startDate?: Date;
     endDate?: Date;
     isActive?: boolean;
