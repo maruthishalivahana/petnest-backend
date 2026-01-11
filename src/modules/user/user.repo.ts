@@ -51,7 +51,7 @@ export class UserRepository {
     }
 
     async findByIsActive() {
-        const ads = await Advertisement.find({ isApproved: false });
+        const ads = await Advertisement.find({ status: 'pending' });
         return ads;
     }
 
@@ -61,15 +61,16 @@ export class UserRepository {
     }
 
     async updateAdvertisementStatus(adId: string, isApproved: boolean) {
+        const status = isApproved ? 'approved' : 'rejected';
         return await Advertisement.findByIdAndUpdate(
             adId,
-            { isApproved: isApproved },
+            { status: status },
             { new: true }
         );
     }
 
     async getAllApprovedAdvertisements() {
-        const ads = await Advertisement.find({ isApproved: true });
+        const ads = await Advertisement.find({ status: 'approved' });
         return ads;
     }
     async createAdListing(adData: Partial<IAdListing>) {

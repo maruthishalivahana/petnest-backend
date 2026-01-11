@@ -7,7 +7,24 @@ const adService = new AdService();
 // Admin only - Create ad
 export const createAd = async (req: Request, res: Response) => {
     try {
-        const result = await adService.createAd(req.body);
+        // Check if image was uploaded
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ad image is required'
+            });
+        }
+
+        // Get image URL from uploaded file
+        const imageUrl = req.file.path; // Cloudinary URL
+
+        // Combine uploaded image URL with body data
+        const adData = {
+            ...req.body,
+            imageUrl
+        };
+
+        const result = await adService.createAd(adData);
 
         if (!result.success) {
             return res.status(400).json(result);
@@ -25,18 +42,10 @@ export const createAd = async (req: Request, res: Response) => {
 // Admin only - Get all ads
 export const getAllAds = async (req: Request, res: Response) => {
     try {
-        const { placement, device, isActive, page, limit } = req.query;
-        const query = {
-            placement: placement as AdPlacement | undefined,
-            device: device as AdDevice | undefined,
-            isActive: isActive === 'true' ? true : isActive === 'false' ? false : undefined,
-            page: page ? parseInt(page as string) : undefined,
-            limit: limit ? parseInt(limit as string) : undefined
-        };
-
-        const result = await adService.getAllAds(query);
+        const result = await adService.getAllAds();
         return res.status(200).json(result);
     } catch (error) {
+        console.error('Error in getAllAds:', error);
         return res.status(500).json({
             success: false,
             message: error instanceof Error ? error.message : 'Internal server error'
@@ -47,13 +56,7 @@ export const getAllAds = async (req: Request, res: Response) => {
 // Public - Get all active/running ads (for website display)
 export const getActiveAds = async (req: Request, res: Response) => {
     try {
-        const query = {
-            isActive: true, // Only get active ads
-            page: 1,
-            limit: 100 // Get more ads for public display
-        };
-
-        const result = await adService.getAllAds(query);
+        const result = await adService.getActiveAds();
         return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({
@@ -86,7 +89,13 @@ export const getAdById = async (req: Request, res: Response) => {
 export const updateAd = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const result = await adService.updateAd(id, req.body);
+
+        // If image was uploaded, include it in update data
+        const updateData = req.file
+            ? { ...req.body, imageUrl: req.file.path }
+            : req.body;
+
+        const result = await adService.updateAd(id, updateData);
 
         if (!result.success) {
             return res.status(400).json(result);

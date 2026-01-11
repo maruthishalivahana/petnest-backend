@@ -14,6 +14,4 @@ export interface UpdateAdRequestStatusDTO {
 
 export interface AdRequestQuery {
     status?: 'pending' | 'approved' | 'rejected';
-    page?: number;
-    limit?: number;
 }

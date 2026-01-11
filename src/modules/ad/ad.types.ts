@@ -25,14 +25,6 @@ export interface UpdateAdDTO {
     isActive?: boolean;
 }
 
-export interface AdQuery {
-    placement?: AdPlacement;
-    device?: AdDevice;
-    isActive?: boolean;
-    page?: number;
-    limit?: number;
-}
-
 export interface TrackingDTO {
     adId: string;
     type: 'impression' | 'click';

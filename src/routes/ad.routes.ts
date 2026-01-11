@@ -19,15 +19,14 @@ import {
 import { getFeed } from '@modules/feed';
 import { verifyToken, requireRole } from '@shared/middlewares/auth.middleware';
 import { validateBody, validateQuery } from '@shared/middlewares/validation.middleware';
+import { uploadAd } from '@shared/middlewares/upload';
 import {
     CreateAdRequestSchema,
     UpdateAdRequestStatusSchema,
     CreateAdSchema,
     UpdateAdSchema,
     GetAdRequestsQuerySchema,
-    GetAdsQuerySchema,
-    GetAdsByPlacementQuerySchema,
-    GetFeedQuerySchema
+    GetAdsByPlacementQuerySchema
 } from '@validations/ad.validation';
 
 export const adRouter = express.Router();
@@ -47,6 +46,13 @@ adRouter.get(
     getActiveAds
 );
 
+// Get ads by placement (public - for specific page placement)
+adRouter.get(
+    '/ads/placement',
+    validateQuery(GetAdsByPlacementQuerySchema),
+    getAdsByPlacement
+);
+
 // Track impression (public)
 adRouter.post(
     '/ads/:id/impression',
@@ -62,7 +68,6 @@ adRouter.post(
 // Feed with inline ads (public)
 adRouter.get(
     '/feed',
-    validateQuery(GetFeedQuerySchema),
     getFeed
 );
 
@@ -86,12 +91,12 @@ adRouter.patch(
     updateAdRequestStatus
 );
 
-// Create ad (admin only)
+// Create ad (admin only) - with image upload
 adRouter.post(
     '/admin/ads',
     verifyToken,
     requireRole(['admin']),
-    validateBody(CreateAdSchema),
+    uploadAd.single('image'),
     createAd
 );
 
@@ -100,7 +105,6 @@ adRouter.get(
     '/admin/ads',
     verifyToken,
     requireRole(['admin']),
-    validateQuery(GetAdsQuerySchema),
     getAllAds
 );
 
@@ -112,12 +116,12 @@ adRouter.get(
     getAdById
 );
 
-// Update ad (admin only)
+// Update ad (admin only) - with optional image upload
 adRouter.patch(
     '/admin/ads/:id',
     verifyToken,
     requireRole(['admin']),
-    validateBody(UpdateAdSchema),
+    uploadAd.single('image'),
     updateAd
 );
 

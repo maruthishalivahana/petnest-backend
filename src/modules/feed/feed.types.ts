@@ -1,9 +1,5 @@
 export interface FeedQuery {
-    page?: number;
-    limit?: number;
-    device?: 'mobile' | 'desktop' | 'both';
-    species?: string;
-    breed?: string;
+    // No filtering or pagination - returns all
 }
 
 export interface FeedItem {
