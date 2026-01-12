@@ -92,6 +92,62 @@ export const getPetsBySellerController = async (req: Request, res: Response) => 
     }
 };
 
+export const getPetByIdForSellerController = async (req: Request, res: Response) => {
+    try {
+        console.log("=== getPetByIdForSellerController DEBUG ===");
+        console.log("req.user:", req.user);
+        console.log("req.params:", req.params);
+        console.log("req.headers.authorization:", req.headers.authorization);
+
+        const userId = req.user?.id;
+
+        if (!userId) {
+            console.log("ERROR: userId is undefined");
+            return res.status(403).json({
+                message: "Access denied",
+                debug: "User ID not found in request"
+            });
+        }
+
+        console.log("userId from token:", userId);
+
+        const { petId } = req.params;
+
+        if (!petId) {
+            return res.status(400).json({
+                message: "Pet ID is required"
+            });
+        }
+
+        console.log("Fetching pet with ID:", petId, "for userId:", userId);
+        const pet = await petService.getPetByIdForSeller(petId, userId);
+
+        return res.status(200).json({
+            message: "Pet details fetched successfully",
+            data: pet
+        });
+    } catch (error: any) {
+        console.error("Error fetching pet by ID for seller:", error);
+
+        if (error.message === "Pet not found") {
+            return res.status(404).json({ message: error.message });
+        }
+
+        if (error.message === "Seller profile not found") {
+            return res.status(404).json({ message: error.message });
+        }
+
+        if (error.message.includes("Access denied")) {
+            return res.status(403).json({ message: error.message });
+        }
+
+        return res.status(500).json({
+            message: "Error fetching pet details",
+            error: error.message
+        });
+    }
+};
+
 export const getPetCountBySellerController = async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;

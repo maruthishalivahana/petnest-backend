@@ -16,78 +16,26 @@ import router from './src/routes';
 
 const app = express();
 
-// CORS configuration - MUST come BEFORE rate limiting
-// This allows preflight OPTIONS requests to pass through
+// Simple CORS configuration - Allow all for development
 app.use(cors({
-    origin: [
-        process.env.FRONTEND_URL || "http://localhost:3000",
-        "http://localhost:3000",
-        "http://localhost:3001"
-    ],
+    origin: true, // Allow all origins in development
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    exposedHeaders: ["Content-Range", "X-Content-Range"],
-    maxAge: 86400 // Cache preflight for 24 hours
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Set-Cookie"]
 }));
 
-// Security headers (AFTER CORS to avoid conflicts)
+// Disable security headers that might interfere
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false
 }));
 
-// Response compression (gzip)
 app.use(compression());
-
-// Global rate limiter - Increased for development/normal use
-const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500, // Increased from 100 to 500 requests per 15 minutes
-    message: 'Too many requests from this IP, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
-    // Skip rate limiting for OPTIONS (preflight) requests
-    skip: (req) => req.method === 'OPTIONS'
-});
-
-// Stricter rate limiter for auth endpoints
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 10, // Increased from 5 to 10 for better UX
-    message: 'Too many authentication attempts, please try again later.',
-    skip: (req) => req.method === 'OPTIONS'
-});
-
-// Apply rate limiter to API routes
-app.use('/v1/api', globalLimiter);
-
 app.use(cookieParser());
+app.use(express.json());
 
 // Request logging (only in development)
-if (process.env.NODE_ENV !== 'production') {
-    app.use((req, res, next) => {
-        console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-        next();
-    });
-}
-
-// Set timeout for all requests (30 seconds)
-app.use((req, res, next) => {
-    req.setTimeout(30000);
-    res.setTimeout(30000);
-    next();
-});
-
-// Only parse JSON for non-multipart requests
-app.use((req, res, next) => {
-    if (req.is('multipart/form-data')) {
-        // Skip JSON parsing for multipart requests
-        return next();
-    }
-    express.json()(req, res, next);
-});
-
-// Health check endpoint (no authentication required)
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'OK',

@@ -11,6 +11,7 @@ import {
 import {
     addPetController,
     getPetsBySellerController,
+    getPetByIdForSellerController,
     deletePetController,
     UpdatePetController,
     getPetCountBySellerController,
@@ -37,6 +38,22 @@ sellerRouter.post(
 );
 
 // ============= PET MANAGEMENT =============
+// Get pet count (specific route - must come before /pet/:petId)
+sellerRouter.get(
+    "/pet-count",
+    verifyToken,
+    requireSellerVerified,
+    getPetCountBySellerController
+);
+
+// Get all pets by seller (specific route - must come before /pet/:petId)
+sellerRouter.get(
+    "/pets",
+    verifyToken,
+    requireSellerVerified,
+    getPetsBySellerController
+);
+
 // Add a new pet
 sellerRouter.post(
     "/pet",
@@ -46,27 +63,12 @@ sellerRouter.post(
     addPetController
 );
 
+// Get single pet by ID (with full details)
 sellerRouter.get(
-    "/pet-count",
-    verifyToken,
-    requireSellerVerified,
-    getPetCountBySellerController
-);
-
-// Get all pets by seller
-sellerRouter.get(
-    "/pets",
-    verifyToken,
-    requireSellerVerified,
-    getPetsBySellerController
-);
-
-// Delete pet by ID
-sellerRouter.delete(
     "/pet/:petId",
     verifyToken,
     requireSellerVerified,
-    deletePetController
+    getPetByIdForSellerController
 );
 
 // Update pet by ID
@@ -75,6 +77,14 @@ sellerRouter.patch(
     verifyToken,
     requireSellerVerified,
     UpdatePetController
+);
+
+// Delete pet by ID
+sellerRouter.delete(
+    "/pet/:petId",
+    verifyToken,
+    requireSellerVerified,
+    deletePetController
 );
 
 // ============= FEATURED PET REQUESTS =============

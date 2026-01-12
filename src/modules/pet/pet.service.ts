@@ -89,6 +89,31 @@ export class PetService {
         return pet;
     }
 
+    async getPetByIdForSeller(petId: string, userId: string) {
+        const pet = await this.petRepo.findPetByIdWithDetails(petId);
+
+        if (!pet) {
+            throw new Error("Pet not found");
+        }
+
+        // Get seller profile to verify ownership
+        const sellerProfile = await Seller.findOne({ userId });
+
+        if (!sellerProfile) {
+            throw new Error("Seller profile not found");
+        }
+
+        // Verify that this pet belongs to the authenticated seller
+        const petSellerId = (pet.sellerId as any)?._id?.toString();
+        const authSellerId = (sellerProfile._id as any)?.toString();
+
+        if (petSellerId !== authSellerId) {
+            throw new Error("Access denied: You can only view your own pets");
+        }
+
+        return pet;
+    }
+
     async getPetsBySeller(userId: string) {
         const pets = await this.petRepo.findPetsByUserId(userId);
         return pets;

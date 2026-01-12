@@ -21,6 +21,28 @@ export class PetRepository {
         }
     }
 
+    async findPetByIdWithDetails(petId: string) {
+        try {
+            return await Pet.findById(petId)
+                .populate({
+                    path: 'breedId',
+                    select: 'name species',
+                    populate: {
+                        path: 'species',
+                        select: 'speciesName category scientificName'
+                    }
+                })
+                .populate({
+                    path: 'sellerId',
+                    select: 'brandName logoUrl location whatsappNumber'
+                })
+                .lean();
+        } catch (error) {
+            console.error("Error fetching pet by ID with details:", error);
+            throw new Error("Error fetching pet by ID with details: " + (error as Error).message);
+        }
+    }
+
     async findPetsBySellerId(sellerId: string) {
         try {
             return await Pet.find({ sellerId: sellerId })
@@ -125,7 +147,20 @@ export class PetRepository {
                 petId,
                 updateData,
                 { new: true }
-            );
+            )
+                .populate({
+                    path: 'breedId',
+                    select: 'name species',
+                    populate: {
+                        path: 'species',
+                        select: 'speciesName category scientificName'
+                    }
+                })
+                .populate({
+                    path: 'sellerId',
+                    select: 'brandName logoUrl location whatsappNumber'
+                })
+                .lean();
         } catch (error) {
             console.error("Error updating pet:", error);
             throw new Error("Error updating pet: " + (error as Error).message);
