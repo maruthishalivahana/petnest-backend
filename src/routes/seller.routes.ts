@@ -5,7 +5,8 @@ import { handleMulterErrors } from "../shared/middlewares/uploadErrors";
 import {
     SellerFromRequestController,
     getSellerDetailsController,
-    getMySellerProfileController
+    getMySellerProfileController,
+    updateSellerProfileController
 } from "../modules/seller";
 import {
     addPetController,
@@ -98,4 +99,13 @@ sellerRouter.get(
     verifyToken,
     requireSellerVerified,
     getMySellerProfileController
+);
+
+// Update seller profile (brandName, bio, whatsappNumber, location, logo)
+sellerRouter.patch(
+    "/profile",
+    verifyToken,
+    requireSellerVerified,
+    documentUpload.single('logo'),
+    updateSellerProfileController
 );

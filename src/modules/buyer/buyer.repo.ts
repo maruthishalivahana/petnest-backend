@@ -30,7 +30,7 @@ export class BuyerRepository {
         })
             .populate({
                 path: "breedId",
-                select: "name species",
+                select: "name species", // Only fetch needed fields
                 populate: {
                     path: "species",
                     select: "name category"
@@ -38,12 +38,14 @@ export class BuyerRepository {
             })
             .populate({
                 path: "sellerId",
-                select: "brandName userId",
+                select: "brandName userId", // Only fetch needed fields
                 populate: {
                     path: "userId",
                     select: "name"
                 }
-            });
+            })
+            .select('-__v') // Exclude version key
+            .lean(); // Return plain JS objects (faster)
     }
 
     /**
@@ -152,7 +154,8 @@ export class BuyerRepository {
             .populate({
                 path: 'sellerId',
                 select: 'brandName logoUrl location whatsappNumber'
-            });
+            })
+            .lean();
     }
 
     async searchPets(keyword?: string) {
@@ -195,7 +198,8 @@ export class BuyerRepository {
         return await Pet.find(query)
             .populate('breedId', 'name')
             .populate('sellerId', 'name email')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
     }
 
     async filterpets(filters: PetFilter) {
@@ -220,6 +224,7 @@ export class BuyerRepository {
         return await Pet.find(query)
             .populate('breedId', 'name')
             .populate('sellerId', 'name email')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
     }
 }

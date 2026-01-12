@@ -29,6 +29,7 @@ export interface IPet extends Document {
         approvedAt?: Date;
         expiresAt?: Date;
     };
+    whatsappClicks?: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -128,14 +129,22 @@ const PetSchema: Schema<IPet> = new Schema(
                 type: Date
             }
         },
-        // metrics: {
-        //     views: { type: Number, default: 0 },
-        //     saves: { type: Number, default: 0 },
-        //     whatsappClicks: { type: Number, default: 0 }
-        // }
+        whatsappClicks: {
+            type: Number,
+            default: 0
+        }
     },
     { timestamps: true }
 );
+
+// Performance indexes
+PetSchema.index({ sellerId: 1, status: 1 }); // Seller's pets by status
+PetSchema.index({ status: 1, createdAt: -1 }); // Active pets, newest first
+PetSchema.index({ breedId: 1, status: 1 }); // Filter by breed
+PetSchema.index({ category: 1, status: 1 }); // Filter by category
+PetSchema.index({ 'location.city': 1, status: 1 }); // Location-based search
+PetSchema.index({ price: 1, status: 1 }); // Price filtering
+PetSchema.index({ 'featuredRequest.status': 1, 'featuredRequest.expiresAt': 1 }); // Featured pets
 
 PetSchema.pre('save', async function (next) {
     if (this.isModified('breedId')) {

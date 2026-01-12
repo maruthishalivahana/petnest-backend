@@ -106,6 +106,43 @@ export class SellerService {
         return updatedSeller;
     }
 
+    // Update seller profile (for verified sellers only)
+    async updateSellerProfile(userId: string, updateData: any, logoFile?: Express.Multer.File) {
+        try {
+            // Build update object
+            const updates: any = {};
+
+            if (updateData.brandName) updates.brandName = updateData.brandName;
+            if (updateData.bio) updates.bio = updateData.bio;
+            if (updateData.whatsappNumber) updates.whatsappNumber = updateData.whatsappNumber;
+
+            // Handle location updates
+            if (updateData.location) {
+                updates.location = {};
+                if (updateData.location.city) updates.location.city = updateData.location.city;
+                if (updateData.location.state) updates.location.state = updateData.location.state;
+                if (updateData.location.pincode) updates.location.pincode = updateData.location.pincode;
+            }
+
+            // Handle logo upload
+            if (logoFile) {
+                updates.logoUrl = (logoFile as any).path; // Cloudinary URL
+            }
+
+            // Update seller profile
+            const updatedSeller = await this.sellerRepo.updateSellerProfile(userId, updates);
+
+            if (!updatedSeller) {
+                throw new Error("Seller profile not found or not verified");
+            }
+
+            return updatedSeller;
+        } catch (error) {
+            console.error("Error updating seller profile:", error);
+            throw error;
+        }
+    }
+
     async getPendingSellerRequests() {
         const pendingRequests = await this.sellerRepo.findPendingSellerRequests();
 

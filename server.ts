@@ -7,27 +7,69 @@ if (!process.env.JWT_SECRET) {
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import connectDB from './src/shared/config/database';
 import router from './src/routes';
 
 
 const app = express();
 
-// CORS configuration - allow frontend origin
+// CORS configuration - MUST come BEFORE rate limiting
+// This allows preflight OPTIONS requests to pass through
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: [
+        process.env.FRONTEND_URL || "http://localhost:3000",
+        "http://localhost:3000",
+        "http://localhost:3001"
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
+    maxAge: 86400 // Cache preflight for 24 hours
 }));
+
+// Security headers (AFTER CORS to avoid conflicts)
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// Response compression (gzip)
+app.use(compression());
+
+// Global rate limiter - Increased for development/normal use
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 500, // Increased from 100 to 500 requests per 15 minutes
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Skip rate limiting for OPTIONS (preflight) requests
+    skip: (req) => req.method === 'OPTIONS'
+});
+
+// Stricter rate limiter for auth endpoints
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10, // Increased from 5 to 10 for better UX
+    message: 'Too many authentication attempts, please try again later.',
+    skip: (req) => req.method === 'OPTIONS'
+});
+
+// Apply rate limiter to API routes
+app.use('/v1/api', globalLimiter);
 
 app.use(cookieParser());
 
-// Add request logging middleware
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    next();
-});
+// Request logging (only in development)
+if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res, next) => {
+        console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+        next();
+    });
+}
 
 // Set timeout for all requests (30 seconds)
 app.use((req, res, next) => {

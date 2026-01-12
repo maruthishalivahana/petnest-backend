@@ -100,4 +100,16 @@ export class AdRepository {
 
         return await Ad.find(filter).lean();
     }
+
+    async extendAllAdDates(days: number): Promise<{ modifiedCount: number }> {
+        const result = await Ad.updateMany(
+            {},
+            {
+                $set: {
+                    endDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+                }
+            }
+        );
+        return { modifiedCount: result.modifiedCount };
+    }
 }
