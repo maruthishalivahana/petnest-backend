@@ -7,45 +7,35 @@ if (!process.env.JWT_SECRET) {
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import connectDB from './src/shared/config/database';
 import router from './src/routes';
 
 
 const app = express();
 
-// CORS configuration - allow frontend origin
+// Simple CORS configuration - Allow all for development
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: true, // Allow all origins in development
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Set-Cookie"]
 }));
 
+// Disable security headers that might interfere
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false
+}));
+
+app.use(compression());
 app.use(cookieParser());
+app.use(express.json());
 
-// Add request logging middleware
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    next();
-});
-
-// Set timeout for all requests (30 seconds)
-app.use((req, res, next) => {
-    req.setTimeout(30000);
-    res.setTimeout(30000);
-    next();
-});
-
-// Only parse JSON for non-multipart requests
-app.use((req, res, next) => {
-    if (req.is('multipart/form-data')) {
-        // Skip JSON parsing for multipart requests
-        return next();
-    }
-    express.json()(req, res, next);
-});
-
-// Health check endpoint (no authentication required)
+// Request logging (only in development)
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'OK',

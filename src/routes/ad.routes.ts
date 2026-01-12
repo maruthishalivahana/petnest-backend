@@ -14,7 +14,8 @@ import {
     toggleAdStatus,
     getAdsByPlacement,
     trackImpression,
-    trackClick
+    trackClick,
+    extendAllAdDates
 } from '@modules/ad';
 import { getFeed } from '@modules/feed';
 import { verifyToken, requireRole } from '@shared/middlewares/auth.middleware';
@@ -139,4 +140,12 @@ adRouter.patch(
     verifyToken,
     requireRole(['admin']),
     toggleAdStatus
+);
+
+// Extend all ad dates (admin utility endpoint)
+adRouter.post(
+    '/admin/ads/extend-dates',
+    verifyToken,
+    requireRole(['admin']),
+    extendAllAdDates
 );

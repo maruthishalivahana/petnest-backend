@@ -208,4 +208,25 @@ export class AdService {
             throw new Error(`Failed to track click: ${error}`);
         }
     }
+
+    async extendAllAdDates(days: number) {
+        try {
+            if (days < 1 || days > 365) {
+                return {
+                    success: false,
+                    message: 'Days must be between 1 and 365'
+                };
+            }
+
+            const result = await this.repo.extendAllAdDates(days);
+
+            return {
+                success: true,
+                message: `Extended ${result.modifiedCount} ads by ${days} days`,
+                data: result
+            };
+        } catch (error) {
+            throw new Error(`Failed to extend ad dates: ${error}`);
+        }
+    }
 }

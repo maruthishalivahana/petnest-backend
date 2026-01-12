@@ -46,6 +46,20 @@ export class SellerRepository {
         }
     }
 
+    // Update seller profile (for verified sellers to update their own info)
+    async updateSellerProfile(userId: string, updateData: any) {
+        try {
+            return await Seller.findOneAndUpdate(
+                { userId: new mongoose.Types.ObjectId(userId), status: 'verified' },
+                { $set: updateData },
+                { new: true }
+            ).populate('userId', 'name email');
+        } catch (error) {
+            console.error("Failed to update seller profile:", error);
+            throw new Error("Failed to update seller profile");
+        }
+    }
+
     async findPendingSellerRequests() {
         try {
             return await Seller.find({ status: "pending" });

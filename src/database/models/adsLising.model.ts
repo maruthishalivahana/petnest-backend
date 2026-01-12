@@ -98,4 +98,9 @@ const AdSchema = new Schema<IAd>({
     { timestamps: true }
 );
 
+// Performance indexes for ad queries
+AdSchema.index({ isActive: 1, placement: 1, device: 1 }); // Filter by active, placement, device
+AdSchema.index({ startDate: 1, endDate: 1 }); // Date range queries
+AdSchema.index({ placement: 1, isActive: 1, startDate: 1, endDate: 1 }); // Compound index for placement queries
+
 export const Ad: Model<IAd> = model<IAd>('Ad', AdSchema);

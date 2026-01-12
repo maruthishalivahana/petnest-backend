@@ -197,9 +197,9 @@ export class BuyerService {
             // Get wishlist pet IDs for the authenticated user only (fast query)
             const wishlistedPetIds = await buyerRepo.getWishlistPetIds(userId);
 
-            // Add wishlist status to each pet
+            // Add wishlist status to each pet (pets already plain objects from .lean())
             const petsWithWishlistStatus = pets.map((pet: any) => ({
-                ...pet.toObject(),
+                ...pet,
                 isWishlisted: wishlistedPetIds.includes(String(pet._id))
             }));
 
@@ -223,7 +223,7 @@ export class BuyerService {
             const isWishlisted = await buyerRepo.isWishlisted(userId, petId);
 
             return {
-                ...pet.toObject(),
+                ...pet,
                 isWishlisted
             };
         } catch (error: any) {
@@ -247,7 +247,7 @@ export class BuyerService {
         const wishlistedPetIds = await buyerRepo.getWishlistPetIds(userId);
 
         const petsWithWishlistStatus = pets.map((pet: any) => ({
-            ...pet.toObject(),
+            ...pet,
             isWishlisted: wishlistedPetIds.includes(String(pet._id))
         }));
 
@@ -268,7 +268,7 @@ export class BuyerService {
         const wishlistedPetIds = await buyerRepo.getWishlistPetIds(userId);
 
         const petsWithWishlistStatus = pets.map((pet: any) => ({
-            ...pet.toObject(),
+            ...pet,
             isWishlisted: wishlistedPetIds.includes(String(pet._id))
         }));
 

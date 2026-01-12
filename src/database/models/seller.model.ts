@@ -24,6 +24,7 @@ export interface ISeller extends Document {
         wishlistsSaves?: number,
         avgRating?: number
     },
+    totalWhatsappClicks?: number,
     createdAt: Date,
     updatedAt: Date
 }
@@ -91,6 +92,10 @@ const sellerSchema: Schema<ISeller> = new Schema({
         totalViews: { type: Number, default: 0 },
         wishlistSaves: { type: Number, default: 0 },
         averageRating: { type: Number, default: 0 }
+    },
+    totalWhatsappClicks: {
+        type: Number,
+        default: 0
     }
 
 }, { timestamps: true })

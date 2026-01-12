@@ -208,3 +208,30 @@ export const trackClick = async (req: Request, res: Response) => {
         });
     }
 };
+
+// Admin only - Extend all ad dates (utility endpoint)
+export const extendAllAdDates = async (req: Request, res: Response) => {
+    try {
+        const { days } = req.body;
+
+        if (!days || typeof days !== 'number') {
+            return res.status(400).json({
+                success: false,
+                message: 'Days parameter is required and must be a number'
+            });
+        }
+
+        const result = await adService.extendAllAdDates(days);
+
+        if (!result.success) {
+            return res.status(400).json(result);
+        }
+
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Internal server error'
+        });
+    }
+};

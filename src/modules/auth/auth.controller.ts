@@ -139,8 +139,8 @@ export const login = async (req: Request, res: Response) => {
 
         res.cookie('token', result.token, {
             httpOnly: true,
-            secure: false,          // OK in localhost
-            sameSite: 'lax',        // Fix: Chrome will now accept this
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/'
         });

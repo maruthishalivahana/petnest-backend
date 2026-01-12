@@ -49,6 +49,11 @@ const UserSchema: Schema<IUser> = new Schema(
     { timestamps: true }
 );
 
+// Performance indexes
+// Note: email already has unique index from schema definition (line 24)
+UserSchema.index({ role: 1, isVerified: 1 }); // Filter by role and verification status
+UserSchema.index({ isBanned: 1 }); // Banned user checks
+
 const User = mongoose.model<IUser>("User", UserSchema);
 
 export default User;

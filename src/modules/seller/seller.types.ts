@@ -13,3 +13,14 @@ export interface SellerResponse {
 }
 
 export type SellerStatus = 'pending' | 'verified' | 'rejected' | 'suspended';
+
+export interface UpdateSellerProfileData {
+    brandName?: string;
+    bio?: string;
+    whatsappNumber?: string;
+    location?: {
+        city?: string;
+        state?: string;
+        pincode?: string;
+    };
+}

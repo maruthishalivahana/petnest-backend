@@ -4,6 +4,7 @@ import { adminRouter } from "./admin.routes";
 import { sellerRouter } from "./seller.routes";
 import { buyerRouter } from "./buyer.routes";
 import { adRouter } from "./ad.routes";
+import { whatsappRouter } from "./whatsapp.routes";
 
 
 const router = express.Router();
@@ -11,6 +12,7 @@ const router = express.Router();
 // Mount all route modules
 router.use("/auth", authRouter);
 router.use("/ads", adRouter);
+router.use("/whatsapp", whatsappRouter);
 router.use("/admin", adminRouter);
 router.use("/seller", sellerRouter);
 router.use("/buyer", buyerRouter);

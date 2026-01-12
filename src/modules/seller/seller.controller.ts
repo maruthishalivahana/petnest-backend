@@ -152,6 +152,46 @@ export const verifySellerRequestController = async (req: Request, res: Response)
     }
 };
 
+// Update seller profile (for verified sellers to update their own info)
+export const updateSellerProfileController = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        const logoFile = req.file;
+        const updateData = req.body;
+
+        const updatedSeller = await sellerService.updateSellerProfile(
+            userId,
+            updateData,
+            logoFile
+        );
+
+        return res.status(200).json({
+            message: "Seller profile updated successfully",
+            data: updatedSeller
+        });
+    } catch (error) {
+        console.error("Error updating seller profile:", error);
+
+        const errorMessage = (error as Error).message;
+
+        if (errorMessage.includes("not found") || errorMessage.includes("not verified")) {
+            return res.status(404).json({
+                message: errorMessage
+            });
+        }
+
+        return res.status(500).json({
+            message: "Failed to update seller profile",
+            error: errorMessage
+        });
+    }
+};
+
 export const getAllPendingRequestsController = async (req: Request, res: Response) => {
     try {
         const adminId = req.user?.id;
