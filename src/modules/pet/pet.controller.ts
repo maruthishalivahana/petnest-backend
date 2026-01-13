@@ -23,9 +23,9 @@ export const addPetController = async (req: Request, res: Response) => {
             });
         }
 
-        const imageUrls = (req.files as Express.Multer.File[]).map(
-            (file) => (file as any).path
-        );
+        const files = req.files as Express.Multer.File[] | undefined;
+        const imageUrls = files?.map(file => (file as any).path) || [];
+
 
         const newPet = await petService.addPet({ ...petData, userId, images: imageUrls });
 
